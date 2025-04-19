@@ -21,6 +21,14 @@ const userSchema = new mongoose.Schema({
     default: Date.now,
   },  
   // add image image
+  profilePic: {
+    type: String,
+    default: 'https://www.pngkey.com/png/detail/230-2301779_best-classified-apps-default-user-profile.png'
+  },
+  backgroundImage: {
+    type: String,
+    default: 'https://bdu.ac.bd/uploads/topics/default.png'
+  }
 });
 
 module.exports = mongoose.model('user', userSchema);

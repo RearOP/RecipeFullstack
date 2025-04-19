@@ -3,6 +3,7 @@ const app = express();
 const cors = require("cors");
 const db = require("./config/mongoose-connection");
 const userRouter = require("./routes/userRouter");
+const ProfileRouter = require("./routes/profile_Router");
 const cookieParser = require("cookie-parser");
 
 app.use(express.json());
@@ -16,8 +17,7 @@ app.use(
 );
 require("dotenv").config();
 app.use("/auth", userRouter);
-app.get("/", (req, res) => {
-  res.send("Hello World!");
-});
+app.use("/profile", ProfileRouter );
+
 
 app.listen(3000);

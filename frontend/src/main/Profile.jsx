@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from "react";
 import Footer from "./components/Footer";
 import Header from "./components/Header";
-import { FaStar } from "react-icons/fa";
+import Modal from "./components/ShowModal";
+import ProfileRecipeCard from "./components/ProfileRecipeCard";
 import { motion } from "framer-motion";
-import MainImg from "../assets/img/signin.jpg";
-import profilePicDefault from "../assets/img/header.jpg";
 import { MdModeEditOutline } from "react-icons/md";
 import { IoCamera } from "react-icons/io5";
 import axios from "axios";
@@ -28,7 +27,6 @@ const cardVariants = {
 const Profile = () => {
   const [activeTab, setActiveTab] = useState("All Recipes");
   const [user, setUser] = useState([]);
-  const [showModal, setShowModal] = useState({ show: false, image: null });
 
   const [name, setName] = useState("");
   const [showName, setShowName] = useState(false);
@@ -38,28 +36,56 @@ const Profile = () => {
   const [showEmail, setShowEmail] = useState(false);
   const [emailError, setEmailError] = useState("");
 
-  const [coverImage, setCoverImage] = useState(MainImg);
-  const [profilePic, setProfilePic] = useState(profilePicDefault);
-
-  const recipes = Array.from({ length: 20 }, (_, i) => ({
-    title: `Recipe ${i + 1}`,
-    image: MainImg,
-    rateings: (Math.random() * 5.0).toFixed(1),
-    totalrateings: (Math.random() * 500).toFixed(0),
-  }));
+  const [coverImage, setCoverImage] = useState(null);
+  const [profilePic, setProfilePic] = useState(null);
 
   // Image Upload Handler
-  const handleImageUpload = (e, type = "profile") => {
+  const handleImageUpload = async (e, type = "profile") => {
     const file = e.target.files[0];
     if (file) {
       const reader = new FileReader();
-      reader.onload = () => {
-        if (type === "cover") setCoverImage(reader.result);
-        else setProfilePic(reader.result);
+      reader.onload = async () => {
+        const base64Image = reader.result;
+
+        // Update UI
+        if (type === "cover") {
+          setCoverImage(base64Image);
+          setUser((prevUser) => ({
+            ...prevUser,
+            backgroundImage: base64Image,
+          }));
+        } else {
+          setProfilePic(base64Image);
+          setUser((prevUser) => ({
+            ...prevUser,
+            profileImage: base64Image,
+          }));
+        }
+
+        // Build fresh FormData for each request
+        const formData = new FormData();
+        formData.append("image", file);
+        formData.append("type", type);
+        formData.append("fullname", user.fullname || name);
+        formData.append("email", user.email || email);
+
+        try {
+          await axios.post(
+            "http://localhost:3000/profile/updateProfile",
+            formData,
+            {
+              withCredentials: true,
+            }
+          );
+          // console.log("Image uploaded and saved successfully");
+        } catch (err) {
+          console.error("Error saving image to backend:", err.message);
+        }
       };
-      reader.readAsDataURL(file);
+      reader.readAsDataURL(file); // Just for preview
     }
   };
+
   // Debounced Name Change
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -71,7 +97,7 @@ const Profile = () => {
     }, 400);
     return () => clearTimeout(timer);
   }, [name]);
-
+  // Debounced Email Change
   useEffect(() => {
     const timer = setTimeout(() => {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -101,10 +127,10 @@ const Profile = () => {
       console.log("Updated Email:", email);
     }
   };
-
+  // show dynamic data of logged in user
   useEffect(() => {
     axios
-      .get("http://localhost:3000/auth/profile", {
+      .get("http://localhost:3000/profile/users", {
         withCredentials: true,
       })
       .then((res) => {
@@ -142,10 +168,15 @@ const Profile = () => {
         <div className="relative mb-24">
           <motion.img
             layout
-            src={coverImage}
+            src={coverImage || user.backgroundImage} // Show uploaded image or default
             alt="Cover"
             className="w-full h-[300px] object-cover rounded-3xl shadow-lg"
-            onClick={() => setShowModal({ show: true, image: coverImage })}
+            onClick={() =>
+              setShowModal({
+                show: true,
+                image: coverImage || user.backgroundImage,
+              })
+            }
           />
           <label className="absolute bottom-2 right-2 bg-white p-2 rounded-full cursor-pointer hover:bg-gray-100">
             <IoCamera className="text-gray-600" />
@@ -164,10 +195,15 @@ const Profile = () => {
           >
             <div className="relative">
               <img
-                src={profilePic}
+                src={profilePic || user.profilePic}
                 alt="Profile"
                 className="w-36 h-36 rounded-full border-4 border-white object-cover shadow-md hover:scale-105 transition-transform cursor-pointer"
-                onClick={() => setShowModal({ show: true, image: profilePic })}
+                onClick={() =>
+                  setShowModal({
+                    show: true,
+                    image: profilePic || user.profilePic,
+                  })
+                }
               />
               <label className="absolute bottom-2 right-2 bg-white p-2 rounded-full cursor-pointer hover:bg-gray-100">
                 <IoCamera className="text-gray-600" />
@@ -187,7 +223,7 @@ const Profile = () => {
                   className="flex items-center gap-2"
                 >
                   <input
-                    className={`text-2xl font-bold outline-none transition-all duration-300 ${
+                    className={`text-xl uppercase font-bold outline-none transition-all duration-300 ${
                       showName ? "border-b-2 border-red-500" : ""
                     }`}
                     value={name}
@@ -252,20 +288,7 @@ const Profile = () => {
         </div>
 
         {/* Modal */}
-        {showModal.show && (
-          <div
-            className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50"
-            onClick={() => setShowModal({ show: false, image: null })}
-          >
-            <div onClick={(e) => e.stopPropagation()}>
-              <img
-                src={showModal.image}
-                alt="Modal"
-                className="max-w-full max-h-[80vh] rounded-xl shadow-lg"
-              />
-            </div>
-          </div>
-        )}
+        <Modal/>
 
         {/* Tabs */}
         <motion.div
@@ -279,7 +302,7 @@ const Profile = () => {
             <motion.button
               key={tab}
               layout
-              onClick={() => setActiveTab(tab)}
+              onClick={() =>setActiveTab(tab)}
               className={`px-4 py-2 rounded-full text-sm transition-all ${
                 activeTab === tab
                   ? "bg-red-500 text-white"
@@ -293,41 +316,7 @@ const Profile = () => {
         </motion.div>
 
         {/* Recipes Grid */}
-        <motion.div
-          className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-          layout
-        >
-          {recipes.map((recipe, index) => (
-            <motion.div
-              layout
-              key={index}
-              className="bg-white p-3 rounded-xl shadow-sm hover:shadow-md transition-all group"
-              variants={cardVariants}
-              whileHover={{ scale: 1.02 }}
-            >
-              <img
-                src={recipe.image}
-                alt="Recipe"
-                className="w-full h-[180px] object-cover rounded-xl mb-4"
-              />
-              <div>
-                <h3 className="text-lg font-semibold mb-2">{recipe.title}</h3>
-                <div className="flex items-center justify-between text-sm text-gray-600">
-                  <div className="flex items-center gap-1">
-                    <FaStar className="text-yellow-500" />
-                    <span>
-                      {recipe.rateings} ({recipe.totalrateings})
-                    </span>
-                  </div>
-                  <span className="text-gray-400">by John Doe</span>
-                </div>
-              </div>
-            </motion.div>
-          ))}
-        </motion.div>
+        <ProfileRecipeCard/>
 
         <Footer />
       </div>

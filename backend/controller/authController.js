@@ -29,7 +29,7 @@ module.exports.registeruser = async (req, res) => {
               secure: false,
               sameSite: "lax",
             });
-            res.redirect("/");
+            res.status(200).json({ message: "Registration successful" });
           }
         });
       }

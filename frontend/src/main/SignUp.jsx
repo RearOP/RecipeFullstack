@@ -24,7 +24,9 @@ const SignUp = () => {
       const res = await axios.post("http://localhost:3000/auth/register", values,{
         withCredentials: true //this is critical for setting cookies!
       });
-      console.log("data inserted", res);
+      if (res.status === 200) {
+        navigate("/");
+      }
     } catch (error) {
       console.error(error.response?.data?.message || "Registration failed");
     }
