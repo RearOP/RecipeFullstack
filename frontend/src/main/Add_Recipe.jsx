@@ -3,7 +3,13 @@ import Footer from "./components/Footer";
 import Header from "./components/Header";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
-const stepsLabels = ["Basic Info", "Ingredients", "Steps", "Image & Details"];
+import axios from "axios";
+const stepsLabels = [
+  "Title & Description",
+  "Ingredients",
+  "Steps",
+  "Image & Details",
+];
 
 const validationSchemas = [
   Yup.object({
@@ -23,60 +29,59 @@ const validationSchemas = [
   Yup.object({
     image: Yup.mixed().required("Image is required"),
     category: Yup.string().required("Category is required"),
-    tags: Yup.string().required("Tags are required"),
   }),
 ];
+
 const Add_Recipe = () => {
   const [step, setStep] = useState(0);
-  const [ingredients, setIngredients] = useState([""]);
-  const [stepsList, setStepsList] = useState([""]);
   const [imagePreview, setImagePreview] = useState(null);
-  const steps = ["Basic Info", "Ingredients", "Steps", "Extras"];
+  const steps = ["Title & Description", "Ingredients", "Steps", "Extras"];
 
   // Handle tab navigation
   const nextStep = () =>
     setStep((prev) => Math.min(prev + 1, steps.length - 1));
-
   const prevStep = () => setStep((prev) => Math.max(prev - 1, 0));
 
-  // Handle ingredients
-  const handleIngredientChange = (index, value) => {
-    const updated = [...ingredients];
-    updated[index] = value;
-    setIngredients(updated);
-  };
+  async function handelSubmit(values) {
+    // console.log("Submitting:", {
+    //   title: values.title,
+    //   description: values.description,
+    //   ingredients: values.ingredients,
+    //   steps: values.stepsList,
+    //   category: values.category,
+    //   image: values.image,
+    // });
+    const formData = new FormData();
+    formData.append("title", values.title);
+    formData.append("description", values.description);
+    formData.append("category", values.category);
+    formData.append("image", values.image);
+    // Convert ingredients and stepsList to JSON strings
+    formData.append("ingredients", JSON.stringify(values.ingredients));
+    formData.append("steps", JSON.stringify(values.stepsList));
 
-  const addIngredient = () => {
-    setIngredients([...ingredients, ""]);
-  };
+    try {
+      const res = await axios.post(
+        "http://localhost:3000/recipe/create",
+        formData,
+        {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
 
-  const removeIngredient = (index) => {
-    const updated = ingredients.filter((_, i) => i !== index);
-    setIngredients(updated);
-  };
-
-  // Handle steps
-  const handleStepChange = (index, value) => {
-    const updated = [...stepsList];
-    updated[index] = value;
-    setStepsList(updated);
-  };
-
-  const addStep = () => {
-    setStepsList([...stepsList, ""]);
-  };
-
-  const removeStep = (index) => {
-    const updated = stepsList.filter((_, i) => i !== index);
-    setStepsList(updated);
-  };
-  //handleImage
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setImagePreview(URL.createObjectURL(file));
+      if (res.status === 201) {
+        console.log("recipe created");
+        // navigate("/"); // Uncomment if you're using react-router
+      } else {
+        console.log("error");
+      }
+    } catch (err) {
+      console.log("not submitted", err);
     }
-  };
+  }
 
   return (
     <div className="min-h-screen font-[Montserrat] bg-gray-50">
@@ -112,136 +117,139 @@ const Add_Recipe = () => {
               stepsList: [""],
               image: null,
               category: "",
-              tags: "",
             }}
             validationSchema={validationSchemas[step]}
-            onSubmit={(values) => {
-                console.log("Submitted:", values);
-              }}
-              >
-              {({ values, setFieldValue, validateForm, setTouched }) => (
-                <Form className="space-y-6">
+            onSubmit={async (values, { setSubmitting }) => {
+              // console.log("Submitting values:", values);
+              await handelSubmit(values);
+              setSubmitting(false);
+            }}
+          >
+            {({ values, setFieldValue, validateForm, setTouched }) => (
+              <Form className="space-y-6">
                 {step === 0 && (
                   <div className="grid gap-6">
-                  <Field
-                    name="title"
-                    placeholder="Recipe Title"
-                    className={inputClass}
-                  />
-                  <ErrorMessage
-                    name="title"
-                    component="div"
-                    className="text-red-500 text-sm"
-                  />
-                  <Field
-                    as="textarea"
-                    name="description"
-                    placeholder="Description"
-                    rows={4}
-                    className={inputClass}
-                  />
-                  <ErrorMessage
-                    name="description"
-                    component="div"
-                    className="text-red-500 text-sm"
-                  />
+                    <Field
+                      name="title"
+                      placeholder="Recipe Title"
+                      className={inputClass}
+                    />
+                    <ErrorMessage
+                      name="title"
+                      component="div"
+                      className="text-red-500 text-sm"
+                    />
+                    <Field
+                      as="textarea"
+                      name="description"
+                      placeholder="Description"
+                      rows={4}
+                      className={inputClass}
+                    />
+                    <ErrorMessage
+                      name="description"
+                      component="div"
+                      className="text-red-500 text-sm"
+                    />
                   </div>
                 )}
 
                 {step === 1 && (
-                  <div className="space-y-4"> {/* Added space-y-4 class */}
-                  {values.ingredients.map((item, index) => (
-                    <div key={index} className="flex gap-2 items-center">
-                    <Field
-                      name={`ingredients[${index}]`}
-                      placeholder={`Ingredient ${index + 1}`}
-                      className="w-full px-4 py-2 border rounded-lg"
-                    />
-                    {values.ingredients.length > 1 && (
-                      <button
+                  <div className="space-y-4">
+                    {" "}
+                    {/* Added space-y-4 class */}
+                    {values.ingredients.map((item, index) => (
+                      <div key={index} className="flex gap-2 items-center">
+                        <Field
+                          name={`ingredients[${index}]`}
+                          placeholder={`Ingredient ${index + 1}`}
+                          className="w-full px-4 py-2 border rounded-lg"
+                        />
+                        {values.ingredients.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setFieldValue(
+                                "ingredients",
+                                values.ingredients.filter((_, i) => i !== index)
+                              )
+                            }
+                            className="text-red-500 hover:text-red-700 text-sm"
+                          >
+                            Remove
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                    <button
                       type="button"
                       onClick={() =>
-                        setFieldValue(
-                        "ingredients",
-                        values.ingredients.filter((_, i) => i !== index)
-                        )
+                        setFieldValue("ingredients", [
+                          ...values.ingredients,
+                          "",
+                        ])
                       }
-                      className="text-red-500 hover:text-red-700 text-sm"
-                      >
-                      Remove
-                      </button>
-                    )}
-                    </div>
-                  ))}
-                  <button
-                    type="button"
-                    onClick={() =>
-                    setFieldValue("ingredients", [
-                      ...values.ingredients,
-                      "",
-                    ])
-                    }
-                    className="text-sm text-red-600 hover:text-red-800 font-medium mt-2"
-                  >
-                    + Add Ingredient
-                  </button>
-                  <ErrorMessage
-                    name="ingredients"
-                    component="div"
-                    className="text-red-500 text-sm"
-                  />
+                      className="text-sm text-red-600 hover:text-red-800 font-medium mt-2"
+                    >
+                      + Add Ingredient
+                    </button>
+                    <ErrorMessage
+                      name="ingredients"
+                      component="div"
+                      className="text-red-500 text-sm"
+                    />
                   </div>
                 )}
 
                 {step === 2 && (
                   <div className="space-y-4">
-                  {values.stepsList.map((stepItem, index) => (
-                    <div key={index} className="flex gap-2 items-center">
-                    <Field
-                      name={`stepsList[${index}]`}
-                      placeholder={`Step ${index + 1}`}
-                      className="w-full px-4 py-2 border rounded-lg"
-                    />
-                    {values.stepsList.length > 1 && (
-                      <button
+                    {values.stepsList.map((stepItem, index) => (
+                      <div key={index} className="flex gap-2 items-center">
+                        <Field
+                          name={`stepsList[${index}]`}
+                          placeholder={`Step ${index + 1}`}
+                          className="w-full px-4 py-2 border rounded-lg"
+                        />
+                        {values.stepsList.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setFieldValue(
+                                "stepsList",
+                                values.stepsList.filter((_, i) => i !== index)
+                              )
+                            }
+                            className="text-red-500 hover:text-red-700 text-sm"
+                          >
+                            Remove
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                    <button
                       type="button"
                       onClick={() =>
-                        setFieldValue(
-                        "stepsList",
-                        values.stepsList.filter((_, i) => i !== index)
-                        )
+                        setFieldValue("stepsList", [...values.stepsList, ""])
                       }
-                      className="text-red-500 hover:text-red-700 text-sm"
-                      >
-                      Remove
-                      </button>
-                    )}
-                    </div>
-                  ))}
-                  <button
-                    type="button"
-                    onClick={() =>
-                    setFieldValue("stepsList", [...values.stepsList, ""])
-                    }
-                    className="text-sm text-red-600 hover:text-red-800 font-medium mt-2"
-                  >
-                    + Add Step
-                  </button>
-                  <ErrorMessage
-                    name="stepsList"
-                    component="div"
-                    className="text-red-500 text-sm"
-                  />
+                      className="text-sm text-red-600 hover:text-red-800 font-medium mt-2"
+                    >
+                      + Add Step
+                    </button>
+                    <ErrorMessage
+                      name="stepsList"
+                      component="div"
+                      className="text-red-500 text-sm"
+                    />
                   </div>
                 )}
 
                 {step === 3 && (
                   <div className="grid gap-6">
-                  <input
-                    id="imageUpload"
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => {
+                    <input
+                      id="imageUpload"
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
                         const file = e.currentTarget.files[0];
                         setFieldValue("image", file);
                         setImagePreview(URL.createObjectURL(file));
@@ -275,17 +283,6 @@ const Add_Recipe = () => {
                       component="div"
                       className="text-red-500 text-sm"
                     />
-
-                    <Field
-                      name="tags"
-                      placeholder="Tags (comma separated)"
-                      className={inputClass}
-                    />
-                    <ErrorMessage
-                      name="tags"
-                      component="div"
-                      className="text-red-500 text-sm"
-                    />
                   </div>
                 )}
 
@@ -307,17 +304,23 @@ const Add_Recipe = () => {
                         if (Object.keys(errors).length === 0) {
                           nextStep();
                         } else {
-                          setTouched(errors);
+                          setTouched(
+                            Object.keys(errors).reduce((acc, key) => {
+                              acc[key] = true;
+                              return acc;
+                            }, {})
+                          );
+                          
                         }
                       }}
-                      className="px-6 py-2 rounded-full bg-red-600 text-white hover:bg-red-700 text-sm font-semibold"
+                      className="px-6 py-2 rounded-full bg-red-600 text-white hover:bg-red-700 text-sm font-semibold transition-colors duration-300"
                     >
                       Next
                     </button>
                   ) : (
                     <button
                       type="submit"
-                      className="px-6 py-2 rounded-full bg-green-600 text-white hover:bg-green-700 text-sm font-semibold"
+                      className="px-6 py-2 rounded-full bg-green-600 text-white hover:bg-green-700 text-sm font-semibold transition-colors duration-300"
                     >
                       Submit Recipe
                     </button>

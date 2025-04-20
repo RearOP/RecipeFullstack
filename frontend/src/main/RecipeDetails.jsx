@@ -51,6 +51,7 @@ const RecipeDetails = () => {
             <img
               src={MainImg}
               alt="Recipe"
+              name="image"
               className="rounded-xl object-cover w-full max-h-[400px]"
             />
           </div>

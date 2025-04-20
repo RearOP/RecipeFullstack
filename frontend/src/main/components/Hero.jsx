@@ -21,7 +21,7 @@ const Hero = () => {
               infomediaries negotiate sustainable strategic theme areas
             </p>
             <a
-              href="#"
+              href="/signup"
               className="inline-flex items-center gap-2 mt-6 group text-[16px] font-medium text-white"
             >
               <span className="relative after:absolute after:bg-white after:h-[2px] after:w-full after:left-0 after:bottom-0 after:origin-left after:scale-x-0 after:transition-transform after:duration-800 group-hover:after:scale-x-100">

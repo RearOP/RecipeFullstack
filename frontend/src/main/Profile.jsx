@@ -66,8 +66,8 @@ const Profile = () => {
         const formData = new FormData();
         formData.append("image", file);
         formData.append("type", type);
-        formData.append("fullname", user.fullname || name);
-        formData.append("email", user.email || email);
+        // formData.append("fullname", user.fullname || name);
+        // formData.append("email", user.email || email);
 
         try {
           await axios.post(
@@ -110,23 +110,48 @@ const Profile = () => {
     return () => clearTimeout(timer);
   }, [email]);
 
-  const handleNameSubmit = (e) => {
-    e.preventDefault();
-    if (!nameError) {
-      setShowName(false);
-      setUser({ ...user, fullname: name }); // Optional sync
-      console.log("Updated Name:", name);
+  const handleNameSubmit = async () => {
+    try {
+      if (!nameError) {
+        setShowName(false);
+      }
+
+      const payload = {
+        fullname: name,
+        // email: email,
+      };
+
+      await axios.post("http://localhost:3000/profile/updateName", payload, {
+        withCredentials: true,
+      });
+
+      console.log("data submitted name");
+    } catch (err) {
+      console.error("Error saving Input data to backend:", err.message);
     }
   };
 
-  const handleEmailSubmit = (e) => {
-    e.preventDefault();
-    if (!emailError) {
-      setShowEmail(false);
-      setUser({ ...user, email }); // Optional sync
-      console.log("Updated Email:", email);
+  const handleEmailSubmit = async () => {
+    try {
+      if (!emailError) {
+        setShowEmail(false);
+      }
+
+      const payload = {
+        // fullname: name,
+        email: email,
+      };
+
+      await axios.post("http://localhost:3000/profile/updateEmail", payload, {
+        withCredentials: true,
+      });
+
+      console.log("data submitted email");
+    } catch (err) {
+      console.error("Error saving Input data to backend:", err.message);
     }
   };
+
   // show dynamic data of logged in user
   useEffect(() => {
     axios
@@ -219,7 +244,10 @@ const Profile = () => {
               {/* Name Field */}
               <span className="flex items-center gap-2">
                 <form
-                  onSubmit={handleNameSubmit}
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    handleNameSubmit(); // No need to pass `e` or `values`
+                  }}
                   className="flex items-center gap-2"
                 >
                   <input
@@ -253,7 +281,10 @@ const Profile = () => {
               {/* Email Field */}
               <span className="flex items-center gap-2">
                 <form
-                  onSubmit={handleEmailSubmit}
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    handleEmailSubmit(); // No need to pass `e` or `values`
+                  }}
                   className="flex items-center gap-2"
                 >
                   <input
@@ -288,7 +319,7 @@ const Profile = () => {
         </div>
 
         {/* Modal */}
-        <Modal/>
+        <Modal />
 
         {/* Tabs */}
         <motion.div
@@ -302,7 +333,7 @@ const Profile = () => {
             <motion.button
               key={tab}
               layout
-              onClick={() =>setActiveTab(tab)}
+              onClick={() => setActiveTab(tab)}
               className={`px-4 py-2 rounded-full text-sm transition-all ${
                 activeTab === tab
                   ? "bg-red-500 text-white"
@@ -316,7 +347,7 @@ const Profile = () => {
         </motion.div>
 
         {/* Recipes Grid */}
-        <ProfileRecipeCard/>
+        <ProfileRecipeCard />
 
         <Footer />
       </div>
