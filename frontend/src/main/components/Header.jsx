@@ -1,13 +1,30 @@
 import React, { useState } from "react";
 import { FiMenu, FiX } from "react-icons/fi";
 import { IoPersonOutline } from "react-icons/io5";
-
+import { useNavigate } from "react-router";
+import axios from 'axios';
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isProfileOpen, setisProfileOpen] = useState(false);
 
   const toggleDrawer = () => setIsOpen(!isOpen);
   const toggleProfile = () => setisProfileOpen(!isProfileOpen);
+
+  const navigate = useNavigate();
+  const handleLogout = async () => {
+    try {
+      const res = await axios.get("http://localhost:3000/auth/logout", {
+        withCredentials: true,
+      });
+      // console.log("Logout response:", res.status, res.data);
+      if (res.status === 200) {
+        navigate("/");
+      }
+    } catch (error) {
+      console.error("Logout failed", error.response?.data || error.message);
+    }
+  };
+  
 
   return (
     <header className="py-4 px-4 md:px-8 top-0 z-50 relative">
@@ -77,12 +94,12 @@ const Header = () => {
                 >
                   Add Recipe
                 </a>
-                {/* <a
-                  href="/logout"
-                  className="block px-4 py-2 text-sm hover:bg-gray-100"
+                <button
+                  onClick={handleLogout}
+                  className="block px-4 py-2 text-sm hover:text-red-700 transition duration-300"
                 >
                   Logout
-                </a> */}
+                </button>
               </div>
             )}
           </div>
@@ -137,12 +154,12 @@ const Header = () => {
                 >
                   Add Recipe
                 </a>
-                {/* <a
-                  href="/logout"
+                <button
+                  onClick={handleLogout}
                   className="block py-2 hover:text-red-700 transition duration-300 ease-in"
                 >
                   Logout
-                </a> */}
+                </button>
               </div>
             </nav>
 

@@ -3,7 +3,7 @@ const userModel = require("../models/user_model");
 
 module.exports = async (req, res, next) => {
   const token = req.cookies.token;
-  console.log("Token from cookie:", token); // <--- add this
+  // console.log("Token from cookie:", token); // <--- add this
 
   if (!token) {
     console.log("No token found");

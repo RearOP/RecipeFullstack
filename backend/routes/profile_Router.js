@@ -8,7 +8,7 @@ const IsloggedIn = require("../middlewares/IsloggedIn");
 const user_model = require("../models/user_model");
 
 router.get("/users", IsloggedIn, async (req, res) => {
-  console.log("req.user inside /users route:", req.user); // debug
+  // console.log("req.user inside /users route:", req.user); // debug
   const user = await user_model.findById(req.user._id);
   if (!req.user || !req.user._id) {
     return res.status(401).json({ message: "User not authenticated" });

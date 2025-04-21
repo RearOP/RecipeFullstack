@@ -47,22 +47,28 @@ module.exports.loginUser = async (req, res) => {
     return res.status(401).json({ message: "Invalid credentials" });
   } else {
     bcrypt.compare(password, loguser.password, function (err, result) {
-        if  (result){
-            let token = generateToken(loguser);
-            res.cookie("token", token, {
-              httpOnly: true,
-              secure: false,
-              sameSite: "lax",
-            });
-            res.send("loggedIN");
-        }else {
-            return res.status(401).json({ message: "Invalid credentials" });
-        }
+      if (result) {
+        let token = generateToken(loguser);
+        res.cookie("token", token, {
+          httpOnly: true,
+          secure: false,
+          sameSite: "lax",
+        });
+        res.send("loggedIN");
+      } else {
+        return res.status(401).json({ message: "Invalid credentials" });
+      }
     });
   }
 };
 
 module.exports.logout = async (req, res) => {
-    res.clearCookie("token");
-    res.redirect("/login");
-}
+  // console.log("Logout hit");
+  res.clearCookie("token", {
+    httpOnly: true,
+    sameSite: "Lax", // or "Strict" if that's what you used before
+    secure: false,   // IMPORTANT: false if running on HTTP (localhost)
+  });
+  res.status(200).json({ message: "Logged out successfully" });
+};
+

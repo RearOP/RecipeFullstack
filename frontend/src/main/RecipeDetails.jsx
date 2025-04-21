@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Footer from "./components/Footer";
 import Header from "./components/Header";
 import { motion } from "framer-motion";
@@ -6,8 +6,9 @@ import { FaRegStar, FaStar, FaStarHalfAlt } from "react-icons/fa";
 import { FaRegPaperPlane } from "react-icons/fa6";
 import { CiBookmark } from "react-icons/ci";
 import { FiClock, FiRefreshCw, FiUsers } from "react-icons/fi";
-import MainImg from "../assets/img/header.jpg";
 import StarRatings from "react-star-ratings";
+import axios from "axios";
+import { useParams } from "react-router";
 
 const comments = [
   {
@@ -38,7 +39,29 @@ const otherRecipes = [
 ];
 
 const RecipeDetails = () => {
+  const { id } = useParams();
   const [rating, setRating] = useState(0);
+  const [result, setResult] = useState({});
+  useEffect(() => {
+    const fetchRecipe = async () => {
+      try {
+        const res = await axios.get(
+          `http://localhost:3000/recipe/recipeDetails/${id}`,
+          {
+            withCredentials: true,
+          }
+        );
+        setResult(res.data);
+      } catch (err) {
+        console.error(
+          "Failed to fetch recipe:",
+          err.response?.data || err.message
+        );
+      }
+    };
+
+    fetchRecipe();
+  }, [id]);
   return (
     <div className="min-h-screen font-[Montserrat] bg-gray-50">
       <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-10">
@@ -49,7 +72,7 @@ const RecipeDetails = () => {
           {/* Left: Image */}
           <div>
             <img
-              src={MainImg}
+              src={result.imageUrl}
               alt="Recipe"
               name="image"
               className="rounded-xl object-cover w-full max-h-[400px]"
@@ -59,39 +82,38 @@ const RecipeDetails = () => {
           {/* Right: Title and Info */}
           <div className="text-center md:text-left">
             <h1 className="text-5xl font-semibold leading-14 mb-2">
-              White Calzones with Marinara Sauce
+              {result.title}
             </h1>
 
-            <p className="text-sm text-gray-500">
-              Supermarket brands of ricotta contain stabilizers, which can give
-              the cheese a gummy texture when baked. Choose the best ricotta you
-              can find.
-            </p>
+            <p className="text-sm text-gray-500">{result.description}</p>
             <div className="grid grid-cols-1 sm:grid-cols-3 text-center mt-8 border-t border-gray-200 pt-6 gap-y-6 sm:gap-y-0">
               {/* Active Time */}
               <div className="flex flex-col items-center gap-1">
                 <FiClock size={24} className="text-gray-700" />
                 <span className="font-semibold">Active Time</span>
-                <span className="text-gray-500 text-sm">20 mins</span>
+                <span className="text-gray-500 text-sm">{result.activeTime}</span>
               </div>
 
               {/* Total Time */}
               <div className="flex flex-col items-center gap-1 border-t sm:border-t-0 sm:border-l sm:border-r border-gray-200 sm:px-4">
                 <FiRefreshCw size={24} className="text-gray-700" />
                 <span className="font-semibold">Total Time</span>
-                <span className="text-gray-500 text-sm">50 mins</span>
+                <span className="text-gray-500 text-sm">{result.totalTime}</span>
               </div>
 
               {/* Yield */}
               <div className="flex flex-col items-center gap-1">
                 <FiUsers size={24} className="text-gray-700" />
                 <span className="font-semibold">Yield</span>
-                <span className="text-gray-500 text-sm">Serves 4</span>
+                <span className="text-gray-500 text-sm">Serves {result.servings}</span>
               </div>
             </div>
             <div className="createdby flex items-center justify-between">
               <p className="text-md text-gray-600 mt-5">
-                Created By <span className="text-red-600">Alex Williams</span>
+                Created By{" "}
+                <span className="text-red-600">
+                  {result?.createdBy?.fullname}
+                </span>
               </p>
               <a href="/" className="" title="Save Recipe">
                 <CiBookmark className="h-6 w-6" />
@@ -120,33 +142,28 @@ const RecipeDetails = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-10">
           <div>
             <h2 className="text-xl font-semibold mb-4">How to Make It</h2>
-            {[1, 2, 3].map((step) => (
-              <div key={step} className="mb-6">
-                <h4 className="text-md font-bold text-red-600">Step {step}</h4>
-                <p className="text-sm text-gray-700 mt-1">
-                  Lorem ipsum dolor sit amet consectetur, adipisicing elit.
-                  Minima beatae fugiat, perspiciatis quos.
-                </p>
+            {result?.steps?.map((stepText, index) => (
+              <div key={index} className="mb-6">
+                <h4 className="text-md font-bold text-red-600">
+                  Step {index + 1}
+                </h4>
+                <p className="text-sm text-gray-700 mt-1">{stepText}</p>
               </div>
             ))}
           </div>
           <div>
             <h2 className="text-xl font-semibold mb-4">Ingredients</h2>
             <ul className="list-disc list-inside text-sm text-gray-700 space-y-2">
-              <li>1 pound fresh pizza dough</li>
-              <li>2 cups shredded mozzarella</li>
-              <li>1/4 cup ricotta cheese</li>
-              <li>1 egg yolk</li>
-              <li>1 clove minced garlic</li>
-              <li>1 tsp black pepper</li>
-              <li>1 tsp Italian seasoning</li>
+              {result?.ingredients?.map((item, index) => (
+                <li key={index}>{item}</li>
+              ))}
             </ul>
           </div>
         </div>
 
         {/* Comments Section */}
         <div className="mt-16">
-          <h2 className="text-xl font-bold mb-4">Comments</h2>
+          <h2 className="flex justify-between items-center text-xl font-bold mb-4">Comments<span className="text-sm font-normal">{result.commentCount}</span></h2>
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -174,11 +191,11 @@ const RecipeDetails = () => {
                         <h5 className="font-semibold text-gray-700">
                           {reply.name}
                         </h5>
-                        {/* <div className="flex text-yellow-400">
-                          {[...Array(reply.rating)].map((_, i) => (
+                        <div className="flex text-yellow-400">
+                          {/* {[...Array(reply.rating)].map((_, i) => (
                             <FaStar key={i} size={14} />
-                          ))}
-                        </div> */}
+                          ))} */}
+                        </div>
                       </div>
                       <p className="text-sm text-gray-500">{reply.text}</p>
                     </div>

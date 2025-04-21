@@ -4,6 +4,7 @@ import Header from "./components/Header";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import axios from "axios";
+import { useNavigate } from "react-router";
 const stepsLabels = [
   "Title & Description",
   "Ingredients",
@@ -18,21 +19,31 @@ const validationSchemas = [
   }),
   Yup.object({
     ingredients: Yup.array()
-      .of(Yup.string().required("Ingredient cannot be empty"))
+      .of(Yup.string())
+      .test('not-empty', 'Add at least one ingredient', arr => 
+        arr && arr.some(item => item && item.trim() !== '')
+      )
       .min(1, "Add at least one ingredient"),
   }),
   Yup.object({
     stepsList: Yup.array()
-      .of(Yup.string().required("Step cannot be empty"))
+      .of(Yup.string())
+      .test('not-empty', 'Add at least one step', arr => 
+        arr && arr.some(item => item && item.trim() !== '')
+      )
       .min(1, "Add at least one step"),
   }),
   Yup.object({
     image: Yup.mixed().required("Image is required"),
     category: Yup.string().required("Category is required"),
+    activeTime: Yup.string().required("Active Time is required"),
+    totalTime: Yup.string().required("Total Time is required"),
+    servings: Yup.string().required("Serves is required"),
   }),
 ];
 
 const Add_Recipe = () => {
+  const navigate = useNavigate()
   const [step, setStep] = useState(0);
   const [imagePreview, setImagePreview] = useState(null);
   const steps = ["Title & Description", "Ingredients", "Steps", "Extras"];
@@ -55,6 +66,10 @@ const Add_Recipe = () => {
     formData.append("title", values.title);
     formData.append("description", values.description);
     formData.append("category", values.category);
+    formData.append("activeTime", values.activeTime);
+    formData.append("totalTime", values.totalTime);
+    formData.append("servings", values.servings);
+
     formData.append("image", values.image);
     // Convert ingredients and stepsList to JSON strings
     formData.append("ingredients", JSON.stringify(values.ingredients));
@@ -73,8 +88,8 @@ const Add_Recipe = () => {
       );
 
       if (res.status === 201) {
-        console.log("recipe created");
-        // navigate("/"); // Uncomment if you're using react-router
+        // console.log("recipe created");
+        navigate("/"); // Uncomment if you're using react-router
       } else {
         console.log("error");
       }
@@ -117,6 +132,10 @@ const Add_Recipe = () => {
               stepsList: [""],
               image: null,
               category: "",
+              activeTime: "",
+              totalTime: "",
+              servings: "",
+
             }}
             validationSchema={validationSchemas[step]}
             onSubmit={async (values, { setSubmitting }) => {
@@ -283,6 +302,36 @@ const Add_Recipe = () => {
                       component="div"
                       className="text-red-500 text-sm"
                     />
+                    <Field
+                      name="activeTime"
+                      placeholder="e.g. 20 mins"
+                      className={inputClass}
+                    />
+                    <ErrorMessage
+                      name="activeTime"
+                      component="div"
+                      className="text-red-500 text-sm"
+                    />
+                    <Field
+                      name="totalTime"
+                      placeholder="e.g. 50 mins"
+                      className={inputClass}
+                    />
+                    <ErrorMessage
+                      name="totalTime"
+                      component="div"
+                      className="text-red-500 text-sm"
+                    />
+                    <Field
+                      name="servings"
+                      placeholder="Serves 4"
+                      className={inputClass}
+                    />
+                    <ErrorMessage
+                      name="servings"
+                      component="div"
+                      className="text-red-500 text-sm"
+                    />
                   </div>
                 )}
 
@@ -310,7 +359,6 @@ const Add_Recipe = () => {
                               return acc;
                             }, {})
                           );
-                          
                         }
                       }}
                       className="px-6 py-2 rounded-full bg-red-600 text-white hover:bg-red-700 text-sm font-semibold transition-colors duration-300"

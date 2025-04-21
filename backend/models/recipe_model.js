@@ -12,7 +12,9 @@ const RecipeSchema = new mongoose.Schema(
       type: Array,
       default: [],
     },
-    imageUrl: String,
+    imageUrl: {
+      type: Buffer,
+    },
     category: String,
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "user" },
 
@@ -26,6 +28,18 @@ const RecipeSchema = new mongoose.Schema(
     },
 
     commentCount: { type: Number, default: 0 },
+    activeTime: {
+      type: String,
+      default: "",
+    },
+    totalTime: {
+      type: String,
+      default: "",
+    },
+    servings: {
+      type: String,
+      default: "",
+    },
 
     // Saved recipes
     savedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: "user" }],

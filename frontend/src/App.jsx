@@ -20,9 +20,9 @@ function App() {
 
   return (
     <>
-      {/* {loading ? (
+      {loading ? (
         <Preloader />
-      ) : ( */}
+      ) : (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
@@ -30,13 +30,13 @@ function App() {
             <Route path="/contact" element={<Contact />} />
             <Route path="/signin" element={<SignIn />} />
             <Route path="/signup" element={<SignUp />} />
-            <Route path="/recipeDetails" element={<RecipeDetails />} />
+            <Route path="/recipeDetails/:id" element={<RecipeDetails />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/addrecipe" element={<Add_Recipe />} />
             <Route path="*" element={<Error />} />
           </Routes>
         </BrowserRouter>
-      {/* )} */}
+      )}
     </>
   );
 }
