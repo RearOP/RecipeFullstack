@@ -5,8 +5,10 @@ const db = require("./config/mongoose-connection");
 const userRouter = require("./routes/userRouter");
 const profileRouter = require("./routes/profile_Router");
 const recipeRouter = require("./routes/recipeRouter");
+const categoryRouter = require("./routes/categoryRouter");
 const expressSession = require("express-session");
 const cookieParser = require("cookie-parser");
+const verifyToken = require("./middlewares/verifytoken");
 const MongoStore = require("connect-mongo");
 
 app.use(express.json());
@@ -38,6 +40,9 @@ app.use(
 app.use("/auth", userRouter);
 app.use("/profile", profileRouter );
 app.use("/recipe", recipeRouter );
-
+app.use("/category",verifyToken,categoryRouter );
+app.get("/check", verifyToken, (req, res) => {
+  res.status(200).json({ loggedIn: true, user: req.user,role: req.user.role });
+});
 
 app.listen(3000);

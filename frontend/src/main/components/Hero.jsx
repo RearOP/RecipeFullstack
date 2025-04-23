@@ -1,8 +1,24 @@
-import React from 'react'
+import React, { useEffect, useState } from "react";
 import MainImg from "../../assets/img/header.jpg";
 import { GoArrowRight } from "react-icons/go";
+import axios from "axios";
 
 const Hero = () => {
+  const [IsLoggedIn, setIsLoggedIn] = useState(false);
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const res = await axios.get("http://localhost:3000/check", {
+          withCredentials: true,
+        });
+        setIsLoggedIn(res.data.loggedIn);
+      } catch (err) {
+        console.error("Auth check failed:", err.message);
+      }
+    };
+
+    checkAuth();
+  }, []);
   return (
     <>
       <div className="pt-20 relative font-[Montserrat]">
@@ -20,20 +36,32 @@ const Hero = () => {
               Appropriately integrate technically sound value with scalable
               infomediaries negotiate sustainable strategic theme areas
             </p>
-            <a
-              href="/signup"
-              className="inline-flex items-center gap-2 mt-6 group text-[16px] font-medium text-white"
-            >
-              <span className="relative after:absolute after:bg-white after:h-[2px] after:w-full after:left-0 after:bottom-0 after:origin-left after:scale-x-0 after:transition-transform after:duration-800 group-hover:after:scale-x-100">
-                Sign up today
-              </span>
-              <GoArrowRight />
-            </a>
+            {!IsLoggedIn ? (
+              <a
+                href="/signup"
+                className="inline-flex items-center gap-2 mt-6 group text-[16px] font-medium text-white"
+              >
+                <span className="relative after:absolute after:bg-white after:h-[2px] after:w-full after:left-0 after:bottom-0 after:origin-left after:scale-x-0 after:transition-transform after:duration-800 group-hover:after:scale-x-100">
+                  Sign up today
+                </span>
+                <GoArrowRight />
+              </a>
+            ) : (
+              <a
+                href="/profile"
+                className="inline-flex items-center gap-2 mt-6 group text-[16px] font-medium text-white"
+              >
+                <span className="relative after:absolute after:bg-white after:h-[2px] after:w-full after:left-0 after:bottom-0 after:origin-left after:scale-x-0 after:transition-transform after:duration-800 group-hover:after:scale-x-100">
+                  View Profile
+                </span>
+                <GoArrowRight />
+              </a>
+            )}
           </div>
         </div>
       </div>
     </>
-  )
-}
+  );
+};
 
-export default Hero
+export default Hero;

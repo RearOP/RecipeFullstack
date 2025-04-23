@@ -3,8 +3,10 @@ const IsloggedIn = require("../middlewares/IsloggedIn");
 const recipeModel = require("../models/recipe_model");
 const upload = require("../config/multer-config");
 const router = express.Router();
+const verifyToken = require("../middlewares/verifytoken");
 
-router.post("/create", IsloggedIn, upload.single("image"), async (req, res) => {
+
+router.post("/create", IsloggedIn, verifyToken ,upload.single("image"), async (req, res) => {
   try {
     let {
       title,
@@ -66,7 +68,7 @@ router.get("/showrecipes", IsloggedIn, async (req, res) => {
   }
 });
 
-router.get("/recipeDetails/:id", IsloggedIn, async (req, res) => {
+router.get("/recipeDetails/:id", IsloggedIn, verifyToken ,async (req, res) => {
   try {
     const recipe = await recipeModel
       .findById(req.params.id)

@@ -6,7 +6,7 @@ module.exports = async (req, res, next) => {
   // console.log("Token from cookie:", token); // <--- add this
 
   if (!token) {
-    console.log("No token found");
+    // console.log("No token found");
     return res.status(401).json({ message: "Unauthorized" });
   }
 

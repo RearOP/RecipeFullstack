@@ -1,6 +1,5 @@
 import React from "react";
 import { motion } from "framer-motion";
-import MainImg from "../../assets/img/signin.jpg";
 import { FaStar } from "react-icons/fa";
 
 const containerVariants = {
@@ -17,14 +16,7 @@ const cardVariants = {
   hidden: { opacity: 0, y: 30 },
   visible: { opacity: 1, y: 0 },
 };
-const ProfileRecipeCard = () => {
-  const recipes = Array.from({ length: 20 }, (_, i) => ({
-    title: `Recipe ${i + 1}`,
-    image: MainImg,
-    rateings: (Math.random() * 5.0).toFixed(1),
-    totalrateings: (Math.random() * 500).toFixed(0),
-  }));
-
+const ProfileRecipeCard = ({ showRecipes }) => {
   return (
     <>
       <motion.div
@@ -34,33 +26,41 @@ const ProfileRecipeCard = () => {
         animate="visible"
         layout
       >
-        {recipes.map((recipe, index) => (
-          <motion.div
-            layout
-            key={index}
-            className="bg-white p-3 rounded-xl shadow-sm hover:shadow-md transition-all group"
-            variants={cardVariants}
-            whileHover={{ scale: 1.02 }}
-          >
-            <img
-              src={recipe.image}
-              alt="Recipe"
-              className="w-full h-[180px] object-cover rounded-xl mb-4"
-            />
-            <div>
-              <h3 className="text-lg font-semibold mb-2">{recipe.title}</h3>
-              <div className="flex items-center justify-between text-sm text-gray-600">
-                <div className="flex items-center gap-1">
-                  <FaStar className="text-yellow-500" />
-                  <span>
-                    {recipe.rateings} ({recipe.totalrateings})
-                  </span>
+        {showRecipes?.length > 0 ? (
+          showRecipes.map((recipe, index) => (
+            <motion.div
+              key={index}
+              className="bg-white p-3 rounded-xl shadow-sm hover:shadow-md transition-all group"
+              variants={cardVariants}
+              whileHover={{ scale: 1.02 }}
+            >
+              <a href={`/recipeDetails/${recipe._id}`}>
+                <img
+                  src={recipe.imageUrl}
+                  alt={recipe.title || "Recipe"}
+                  className="w-full h-[180px] object-cover rounded-xl mb-4"
+                />
+                <div>
+                  <h3 className="text-lg font-semibold mb-2">{recipe.title}</h3>
+                  <div className="flex items-center justify-between text-sm text-gray-600">
+                    <div className="flex items-center gap-1">
+                      <FaStar className="text-yellow-500" />
+                      <span>
+                        {recipe.averageRating?.toFixed(1) || 0} (
+                        {recipe.totalRatings || 0})
+                      </span>
+                    </div>
+                    <span className="text-gray-400">
+                      by {recipe.createdBy?.fullname || "Unknown"}
+                    </span>
+                  </div>
                 </div>
-                <span className="text-gray-400">by John Doe</span>
-              </div>
-            </div>
-          </motion.div>
-        ))}
+              </a>
+            </motion.div>
+          ))
+        ) : (
+          <p className="text-gray-500 text-sm">No recipes found.</p>
+        )}
       </motion.div>
     </>
   );

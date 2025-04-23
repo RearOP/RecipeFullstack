@@ -27,6 +27,7 @@ const cardVariants = {
 const Profile = () => {
   const [activeTab, setActiveTab] = useState("All Recipes");
   const [user, setUser] = useState([]);
+  const [showRecipe, setShowRecipe] = useState([]);
 
   const [name, setName] = useState("");
   const [showName, setShowName] = useState(false);
@@ -167,7 +168,24 @@ const Profile = () => {
       .catch((error) => {
         console.error("user not logged in", error);
       });
-  }, []);
+  });
+  useEffect(() => {
+    const fetchRecipes = async () => {
+      try {
+        const res = await axios.get(
+          "http://localhost:3000/profile/profilerecipes",
+          {
+            withCredentials: true,
+          }
+        );
+        setShowRecipe(res.data); // ✅ Now it's the actual data
+      } catch (error) {
+        console.log("Your recipes not found", error);
+      }
+    };
+
+    fetchRecipes();
+  });
 
   const tabs = [
     "All Recipes",
@@ -347,7 +365,7 @@ const Profile = () => {
         </motion.div>
 
         {/* Recipes Grid */}
-        <ProfileRecipeCard />
+        <ProfileRecipeCard showRecipes={showRecipe} />
 
         <Footer />
       </div>

@@ -1,14 +1,32 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FiMenu, FiX } from "react-icons/fi";
 import { IoPersonOutline } from "react-icons/io5";
 import { useNavigate } from "react-router";
-import axios from 'axios';
+import axios from "axios";
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isProfileOpen, setisProfileOpen] = useState(false);
+  const [IsLoggedIn, setIsLoggedIn] = useState(false);
+  const [Admin, setAdmin] = useState(false);
 
   const toggleDrawer = () => setIsOpen(!isOpen);
   const toggleProfile = () => setisProfileOpen(!isProfileOpen);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const res = await axios.get("http://localhost:3000/check", {
+          withCredentials: true,
+        });
+        setIsLoggedIn(res.data.loggedIn);
+        setAdmin(res.data.role === "admin");
+      } catch (err) {
+        console.error("Auth check failed:", err.message);
+      }
+    };
+
+    checkAuth();
+  }, []);
 
   const navigate = useNavigate();
   const handleLogout = async () => {
@@ -24,7 +42,6 @@ const Header = () => {
       console.error("Logout failed", error.response?.data || error.message);
     }
   };
-  
 
   return (
     <header className="py-4 px-4 md:px-8 top-0 z-50 relative">
@@ -57,52 +74,66 @@ const Header = () => {
           >
             Contact
           </a>
+          {Admin && (
+            <a
+              href="/admin"
+              className="hover:text-red-700 transition duration-300 ease-in"
+            >
+              Admin
+            </a>
+          )}
         </nav>
 
         {/* Desktop Auth */}
+
         <div className="hidden md:flex items-center gap-6 font-[Montserrat] font-bold text-sm">
-          <a
-            href="/signin"
-            className="text-[#4a4a4a] hover:text-red-700 transition duration-300 ease-in"
-          >
-            Sign In
-          </a>
-          <a
-            href="/signup"
-            className="bg-red-600 hover:bg-red-700 text-white font-semibold px-5 py-2 rounded-full transition duration-300 ease-in"
-          >
-            Sign Up
-          </a>
-          <div className="relative hidden md:block">
-            <button
-              onClick={toggleProfile}
-              className="flex items-center hover:text-red-700"
-            >
-              <IoPersonOutline size={20} />
-            </button>
-            {isProfileOpen && (
-              <div className="absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-2">
-                <a
-                  href="/profile"
-                  className="block px-4 py-2 text-sm hover:bg-gray-100"
-                >
-                  Profile
-                </a>
-                <a
-                  href="/addrecipe"
-                  className="block px-4 py-2 text-sm hover:bg-gray-100"
-                >
-                  Add Recipe
-                </a>
-                <button
-                  onClick={handleLogout}
-                  className="block px-4 py-2 text-sm hover:text-red-700 transition duration-300"
-                >
-                  Logout
-                </button>
-              </div>
-            )}
-          </div>
+          {!IsLoggedIn ? (
+            <>
+              <a
+                href="/signin"
+                className="text-[#4a4a4a] hover:text-red-700 transition duration-300 ease-in"
+              >
+                Sign In
+              </a>
+              <a
+                href="/signup"
+                className="bg-red-600 hover:bg-red-700 text-white font-semibold px-5 py-2 rounded-full transition duration-300 ease-in"
+              >
+                Sign Up
+              </a>
+            </>
+          ) : (
+            <div className="relative hidden md:block">
+              <button
+                onClick={toggleProfile}
+                className="flex items-center hover:text-red-700"
+              >
+                <IoPersonOutline size={20} />
+              </button>
+              {isProfileOpen && (
+                <div className="absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-2">
+                  <a
+                    href="/profile"
+                    className="block px-4 py-2 text-sm hover:bg-gray-100"
+                  >
+                    Profile
+                  </a>
+                  <a
+                    href="/addrecipe"
+                    className="block px-4 py-2 text-sm hover:bg-gray-100"
+                  >
+                    Add Recipe
+                  </a>
+                  <button
+                    onClick={handleLogout}
+                    className="block px-4 py-2 text-sm hover:text-red-700 transition duration-300"
+                  >
+                    Logout
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
         {/* Mobile Hamburger */}
         <div className="md:hidden">
@@ -141,42 +172,53 @@ const Header = () => {
               >
                 Contact
               </a>
-              <div className="border-t border-gray-200 pt-4">
+              {Admin && (
                 <a
-                  href="/profile"
-                  className="block py-2 hover:text-red-700 transition duration-300 ease-in"
+                  href="/admin"
+                  className="hover:text-red-700 transition duration-300 ease-in"
                 >
-                  Profile
+                  Admin
                 </a>
-                <a
-                  href="/addrecipe"
-                  className="block py-2 hover:text-red-700 transition duration-300 ease-in"
-                >
-                  Add Recipe
-                </a>
-                <button
-                  onClick={handleLogout}
-                  className="block py-2 hover:text-red-700 transition duration-300 ease-in"
-                >
-                  Logout
-                </button>
-              </div>
+              )}
+              {IsLoggedIn && (
+                <div className="border-t border-gray-200 pt-4">
+                  <a
+                    href="/profile"
+                    className="block py-2 hover:text-red-700 transition duration-300 ease-in"
+                  >
+                    Profile
+                  </a>
+                  <a
+                    href="/addrecipe"
+                    className="block py-2 hover:text-red-700 transition duration-300 ease-in"
+                  >
+                    Add Recipe
+                  </a>
+                  <button
+                    onClick={handleLogout}
+                    className="block py-2 hover:text-red-700 transition duration-300 ease-in"
+                  >
+                    Logout
+                  </button>
+                </div>
+              )}
             </nav>
-
-            <div className="mt-4 flex flex-col text-center gap-2 font-[Montserrat] font-bold text-sm">
-              <a
-                href="/signin"
-                className="text-[#4a4a4a] hover:text-red-700 transition duration-300 ease-in"
-              >
-                Sign In
-              </a>
-              <a
-                href="/signup"
-                className="bg-red-600 hover:bg-red-700 text-white font-semibold px-3 py-2 rounded-full text-center transition duration-300 ease-in"
-              >
-                Sign Up
-              </a>
-            </div>
+            {!isLoggedIn && (
+              <div className="mt-4 flex flex-col text-center gap-2 font-[Montserrat] font-bold text-sm">
+                <a
+                  href="/signin"
+                  className="text-[#4a4a4a] hover:text-red-700 transition duration-300 ease-in"
+                >
+                  Sign In
+                </a>
+                <a
+                  href="/signup"
+                  className="bg-red-600 hover:bg-red-700 text-white font-semibold px-3 py-2 rounded-full text-center transition duration-300 ease-in"
+                >
+                  Sign Up
+                </a>
+              </div>
+            )}
           </div>
         </div>
       )}

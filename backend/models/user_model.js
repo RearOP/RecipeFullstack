@@ -6,6 +6,10 @@ const userSchema = new mongoose.Schema({
     required: true,
     minlength:3
   },
+  role: {
+    type: String,
+    default: "user",
+  },
   password: {
     type: String,
     required: true,

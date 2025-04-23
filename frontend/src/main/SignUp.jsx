@@ -3,6 +3,7 @@ import { FaFacebookF, FaGooglePlusG, FaLinkedinIn } from "react-icons/fa";
 import SignupImage from "../assets/img/signup.jpg";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
+import {useNavigate} from 'react-router';
 import axios from "axios";
 
 const SignUpSchema = Yup.object().shape({
@@ -18,7 +19,7 @@ const SignUpSchema = Yup.object().shape({
 });
 
 const SignUp = () => {
-
+  const navigate = useNavigate(); 
   async function handleSubmit(values) {
     try {
       const res = await axios.post("http://localhost:3000/auth/register", values,{

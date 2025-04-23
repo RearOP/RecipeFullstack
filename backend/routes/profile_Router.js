@@ -6,14 +6,47 @@ const router = express.Router();
 
 const IsloggedIn = require("../middlewares/IsloggedIn");
 const user_model = require("../models/user_model");
+const recipe_model = require("../models/recipe_model");
+const verifyToken = require("../middlewares/verifytoken");
 
-router.get("/users", IsloggedIn, async (req, res) => {
+router.get("/users", IsloggedIn, verifyToken ,async (req, res) => {
   // console.log("req.user inside /users route:", req.user); // debug
-  const user = await user_model.findById(req.user._id);
-  if (!req.user || !req.user._id) {
+  const user = await user_model.findById(req.user.id);
+  if (!req.user || !req.user.id) {
     return res.status(401).json({ message: "User not authenticated" });
+    // console.log("User not authenticated");
   }  
   res.json(user);
+});
+
+router.get("/profilerecipes", IsloggedIn, verifyToken, async (req, res) => {
+  try {
+    // console.log("req.user inside /profilerecipes route:", req.user); // debug
+
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ message: "User not authenticated" });
+    }
+
+    const recipes = await recipe_model.find({ createdBy: req.user.id }).populate("createdBy", "fullname");
+    const recipesWithImages = recipes.map((recipe) => {
+      const recipeObj = recipe.toObject();
+
+      if (recipe.imageUrl && Buffer.isBuffer(recipe.imageUrl)) {
+        recipeObj.imageUrl = `data:image/jpeg;base64,${recipe.imageUrl.toString(
+          "base64"
+        )}`;
+      } else {
+        recipeObj.imageUrl = null;
+      }
+
+      return recipeObj;
+    });
+    res.json(recipesWithImages);
+    // console.log(recipes);
+  } catch (err) {
+    console.error("Error fetching profile recipes:", err);
+    res.status(500).json({ message: "Server error" });
+  }
 });
 
 

@@ -17,22 +17,24 @@ const LoginSchema = Yup.object().shape({
 
 const SignIn = () => {
   let navigate = useNavigate();
-  async function handleLogin (values) {
+  async function handleLogin(values) {
     try {
-      const res = await axios.post(
-        "http://localhost:3000/auth/login",values,{
-          withCredentials: true //this is critical for setting cookies!
-        }
-      );
-      // console.log("LoggedIn successfully", res);
+      const res = await axios.post("http://localhost:3000/auth/login", values, {
+        withCredentials: true,
+      });
+
       if (res.status === 200) {
-        // Redirect to homepage or dashboard after successful login
-        navigate("/");
+        if (res.data.role === "admin") {
+          navigate("/admin"); // Adjust route accordingly
+        } else {
+          navigate("/");
+        }
       }
     } catch (error) {
-      console.error(error.response?.data?.message || "LoggedIn failed");
+      console.error(error.response?.data?.message || "Login failed");
     }
-  };
+  }
+
   return (
     <>
       <div className="min-h-screen font-[Montserrat] flex items-center justify-center p-4">

@@ -75,7 +75,7 @@ const RecipeDetails = () => {
               src={result.imageUrl}
               alt="Recipe"
               name="image"
-              className="rounded-xl object-cover w-full max-h-[400px]"
+              className="rounded-xl object-cover w-full max-h-[330px]"
             />
           </div>
 
@@ -110,8 +110,8 @@ const RecipeDetails = () => {
             </div>
             <div className="createdby flex items-center justify-between">
               <p className="text-md text-gray-600 mt-5">
-                Created By{" "}
-                <span className="text-red-600">
+                Created By
+                <span className="text-red-600 px-1">
                   {result?.createdBy?.fullname}
                 </span>
               </p>
