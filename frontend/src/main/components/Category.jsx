@@ -1,37 +1,37 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 import { FaPlus, FaMinus } from "react-icons/fa6";
 import { FiFilter } from "react-icons/fi";
+import { motion, AnimatePresence } from "framer-motion";
 
 const Category = () => {
-  const categories = [
-    {
-      name: "Dish Type",
-      sub: ["Pasta", "Salad", "Pizza"]
-    },
-    {
-      name: "Meal Type",
-      sub: ["Breakfast", "Lunch", "Dinner"]
-    },
-    {
-      name: "Diet and Health",
-      sub: ["Low Carb", "Gluten Free", "Vegan"]
-    },
-    {
-      name: "World Cuisine",
-      sub: ["Italian", "Mexican", "Indian"]
-    },
-    {
-      name: "Seasonal",
-      sub: ["Summer", "Winter", "Spring"]
-    },
-  ];
-
+  const [categories, setCategories] = useState([]);
   const [openIndex, setOpenIndex] = useState(null);
   const [showMobileFilter, setShowMobileFilter] = useState(false);
 
   const toggleAccordion = (index) => {
-    setOpenIndex(prev => (prev === index ? null : index));
+    setOpenIndex((prev) => (prev === index ? null : index));
   };
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await axios.get(
+          "http://localhost:3000/category/showcategory"
+        );
+        setCategories(res.data);
+      } catch (err) {
+        console.error("Error fetching categories:", err);
+        // Handle unauthorized errors
+        if (err.response && err.response.status === 401) {
+          setCategories([]); // Set empty categories or a default value
+          // Optionally show a message that user needs to log in to see categories
+        }
+      }
+    };
+  
+    fetchCategories();
+  }, []);
 
   return (
     <>
@@ -46,26 +46,55 @@ const Category = () => {
         </button>
       </div>
 
-      {/* Sidebar for desktop & collapsible panel for mobile */}
-      <div className={`font-[Montserrat] ${showMobileFilter ? '' : 'hidden'} md:block w-full md:w-[220px] sticky top-24`}>
-        <h2 className="text-3xl md:text-4xl font-bold mb-10 md:mb-20">Recipes</h2>
+      {/* Sidebar */}
+      <div
+        className={`font-[Montserrat] ${
+          showMobileFilter ? "" : "hidden"
+        } md:block w-full md:w-[220px] sticky top-24`}
+      >
+        <h2 className="text-3xl md:text-4xl font-bold mb-10 md:mb-20">
+          Categories
+        </h2>
         <div className="space-y-4">
           {categories.map((cat, idx) => (
-            <div key={idx}>
+            <div key={cat._id}>
               <button
                 className="flex justify-between items-center w-full text-left text-[17px] font-medium"
                 onClick={() => toggleAccordion(idx)}
               >
                 <span>{cat.name}</span>
-                {openIndex === idx ? <FaMinus className="text-sm" /> : <FaPlus className="text-sm" />}
+                {openIndex === idx ? (
+                  <FaMinus className="text-sm" />
+                ) : (
+                  <FaPlus className="text-sm" />
+                )}
               </button>
-              {openIndex === idx && (
-                <ul className="pl-4 mt-1 space-y-1  text-gray-600">
-                  {cat.sub.map((item, subIdx) => (
-                    <li key={subIdx} className="cursor-pointer text-md hover:text-red-600 transition duration-300 ease-in">{item}</li>
-                  ))}
-                </ul>
-              )}
+              <AnimatePresence initial={false}>
+                {openIndex === idx && (
+                  <motion.ul
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="pl-4 mt-1 overflow-hidden text-gray-600"
+                  >
+                    {cat.subcategories && cat.subcategories.length > 0 ? (
+                      cat.subcategories.map((sub, i) => (
+                        <li
+                          key={i}
+                          className="cursor-pointer hover:text-red-600 transition duration-300 ease-in mt-2"
+                        >
+                          {sub.name}
+                        </li>
+                      ))
+                    ) : (
+                      <li className="text-sm italic text-gray-400">
+                        No subcategories
+                      </li>
+                    )}
+                  </motion.ul>
+                )}
+              </AnimatePresence>
             </div>
           ))}
         </div>

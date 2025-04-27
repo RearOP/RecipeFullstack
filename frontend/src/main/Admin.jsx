@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
-import { ErrorMessage, Field, Form, Formik } from "formik";
+import { ErrorMessage, Field, Form, Formik, FieldArray } from "formik";
 import * as Yup from "yup";
 import axios from "axios";
 import { useNavigate } from "react-router";
@@ -10,19 +10,27 @@ const CategorySchema = Yup.object().shape({
   name: Yup.string()
     .min(3, "Category name must be at least 3 characters")
     .required("Category name is required"),
+  slug: Yup.string(),
+  subcategories: Yup.array().of(
+    Yup.object().shape({
+      name: Yup.string().required("Subcategory name is required"),
+    })
+  ),
 });
 
 const Admin = () => {
   const navigate = useNavigate();
+
   const handleSubmit = async (values) => {
     try {
       const res = await axios.post(
         "http://localhost:3000/category/create",
         values,
         {
-          withCredentials: true, //this is critical for setting cookies!
+          withCredentials: true,
         }
       );
+
       if (res.status === 200) {
         navigate("/");
       }
@@ -42,54 +50,105 @@ const Admin = () => {
           </h2>
 
           <Formik
-            initialValues={{ name: "" }}
+            initialValues={{ name: "", slug: "", subcategories: [] }}
             validationSchema={CategorySchema}
             onSubmit={handleSubmit}
           >
-            <Form
-              className="grid grid-cols-1 md:grid-cols-2 gap-6"
-              method="POST"
-            >
-              {/* Left Column: Category Name */}
-              <div>
-                <label className="block mb-2 font-medium text-gray-700">
-                  Category Name
-                </label>
-                <Field
-                  name="name"
-                  type="text"
-                  placeholder="e.g. Desserts, Main Dishes"
-                  className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-red-400 outline-none"
-                />
-                <ErrorMessage
-                  name="name"
-                  component="div"
-                  className="text-red-500 mt-1 text-sm"
-                />
-              </div>
-              <div>
-                <label className="block mb-2 font-medium text-gray-700">
-                  Category Slug
-                </label>
-                <Field
-                  name="slug"
-                  type="text"
-                  placeholder="slug"
-                  className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-red-400 outline-none"
-                />
-              </div>
-              {/* Submit Button */}
-              <div className="col-span-1 md:col-span-2">
-                <button
-                  type="submit"
-                  className="w-full bg-red-600 text-white py-3 rounded-xl font-semibold hover:bg-red-500 transition duration-300"
-                >
-                  Add Category
-                </button>
-              </div>
-            </Form>
+            {({ values }) => (
+              <Form
+                className="grid grid-cols-1 md:grid-cols-2 gap-6"
+                method="POST"
+              >
+                {/* Category Name */}
+                <div>
+                  <label className="block mb-2 font-medium text-gray-700">
+                    Category Name
+                  </label>
+                  <Field
+                    name="name"
+                    type="text"
+                    placeholder="e.g. Desserts, Main Dishes"
+                    className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-red-400 outline-none"
+                  />
+                  <ErrorMessage
+                    name="name"
+                    component="div"
+                    className="text-red-500 mt-1 text-sm"
+                  />
+                </div>
+
+                {/* Category Slug */}
+                <div>
+                  <label className="block mb-2 font-medium text-gray-700">
+                    Category Slug
+                  </label>
+                  <Field
+                    name="slug"
+                    type="text"
+                    placeholder="e.g. desserts"
+                    className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-red-400 outline-none"
+                  />
+                </div>
+
+                {/* Subcategories FieldArray */}
+                <div className="col-span-1 md:col-span-2">
+                  <label className="block mb-2 font-medium text-gray-700">
+                    Subcategories
+                  </label>
+                  <FieldArray name="subcategories">
+                    {({ push, remove }) => (
+                      <div className="space-y-3">
+                        {values.subcategories.map((sub, index) => (
+                          <div key={index}>
+                            <div className="flex gap-2 items-center">
+                              <Field
+                                name={`subcategories[${index}].name`}
+                                type="text"
+                                placeholder="e.g. Cakes"
+                                className="flex-1 px-4 py-2 border rounded-xl focus:ring-2 focus:ring-red-400 outline-none"
+                              />
+
+                              <button
+                                type="button"
+                                onClick={() => remove(index)}
+                                className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-xl"
+                              >
+                                Remove
+                              </button>
+                            </div>
+                            <ErrorMessage
+                              name={`subcategories[${index}].name`}
+                              component="div"
+                              className="text-red-500 mt-1 text-sm"
+                            />
+                          </div>
+                        ))}
+                        <button
+                          type="button"
+                          onClick={() => push({ name: "" })}
+                          className="text-sm text-red-600 font-semibold"
+                        >
+                          + Add Subcategory
+                        </button>
+                      </div>
+                    )}
+                  </FieldArray>
+                </div>
+
+                {/* Submit */}
+                <div className="col-span-1 md:col-span-2">
+                  <button
+                    type="submit"
+                    className="w-full bg-red-600 text-white py-3 rounded-xl font-semibold hover:bg-red-500 transition duration-300"
+                  >
+                    Add Category
+                  </button>
+                </div>
+              </Form>
+            )}
           </Formik>
         </div>
+
         <Footer />
       </div>
     </div>

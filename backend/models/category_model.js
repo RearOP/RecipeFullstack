@@ -10,11 +10,17 @@ const categorySchema = new mongoose.Schema({
     type: String,
     required: true,
     unique: true,
-  }, // optional: useful for URLs like /categories/breakfast
+  },
+  subcategories: [
+    {
+      name: String,
+      slug: String,
+    },
+  ],
   createdAt: {
     type: Date,
     default: Date.now,
-  }, // optional: e.g., category icon
+  },
 });
 
 module.exports = mongoose.model("category", categorySchema);

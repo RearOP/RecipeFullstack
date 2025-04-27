@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Footer from "./components/Footer";
 import Header from "./components/Header";
 import { Formik, Form, Field, ErrorMessage } from "formik";
@@ -20,16 +20,20 @@ const validationSchemas = [
   Yup.object({
     ingredients: Yup.array()
       .of(Yup.string())
-      .test('not-empty', 'Add at least one ingredient', arr => 
-        arr && arr.some(item => item && item.trim() !== '')
+      .test(
+        "not-empty",
+        "Add at least one ingredient",
+        (arr) => arr && arr.some((item) => item && item.trim() !== "")
       )
       .min(1, "Add at least one ingredient"),
   }),
   Yup.object({
     stepsList: Yup.array()
       .of(Yup.string())
-      .test('not-empty', 'Add at least one step', arr => 
-        arr && arr.some(item => item && item.trim() !== '')
+      .test(
+        "not-empty",
+        "Add at least one step",
+        (arr) => arr && arr.some((item) => item && item.trim() !== "")
       )
       .min(1, "Add at least one step"),
   }),
@@ -43,8 +47,9 @@ const validationSchemas = [
 ];
 
 const Add_Recipe = () => {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const [step, setStep] = useState(0);
+  const [categories, setCategories] = useState([]);
   const [imagePreview, setImagePreview] = useState(null);
   const steps = ["Title & Description", "Ingredients", "Steps", "Extras"];
 
@@ -97,6 +102,24 @@ const Add_Recipe = () => {
       console.log("not submitted", err);
     }
   }
+  //Show Categories in options
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await axios.get(
+          "http://localhost:3000/category/showcategory",
+          {
+            withCredentials: true,
+          }
+        );
+        setCategories(res.data);
+      } catch (err) {
+        console.error("Error fetching categories:", err);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   return (
     <div className="min-h-screen font-[Montserrat] bg-gray-50">
@@ -135,7 +158,6 @@ const Add_Recipe = () => {
               activeTime: "",
               totalTime: "",
               servings: "",
-
             }}
             validationSchema={validationSchemas[step]}
             onSubmit={async (values, { setSubmitting }) => {
@@ -264,6 +286,7 @@ const Add_Recipe = () => {
 
                 {step === 3 && (
                   <div className="grid gap-6">
+                    {/* Image Upload */}
                     <input
                       id="imageUpload"
                       type="file"
@@ -292,16 +315,66 @@ const Add_Recipe = () => {
                       />
                     )}
 
-                    <Field
-                      name="category"
-                      placeholder="Category"
-                      className={inputClass}
-                    />
-                    <ErrorMessage
-                      name="category"
-                      component="div"
-                      className="text-red-500 text-sm"
-                    />
+                    {/* Category Select */}
+                    <div>
+                      <label className="block text-sm font-medium mb-1">
+                        Category
+                      </label>
+                      <select
+                        name="category"
+                        value={values.category}
+                        onChange={(e) => {
+                          setFieldValue("category", e.target.value);
+                          setFieldValue("subCategory", ""); // Reset subcategory when category changes
+                        }}
+                        className={inputClass}
+                      >
+                        <option value="" disabled>
+                          Select Category
+                        </option>
+                        {categories.map((cat) => (
+                          <option key={cat._id} value={cat.name}>
+                            {cat.name}
+                          </option>
+                        ))}
+                      </select>
+                      <ErrorMessage
+                        name="category"
+                        component="div"
+                        className="text-red-500 text-sm"
+                      />
+                    </div>
+
+                    {/* Subcategory Select (Only if selected category has subcategories) */}
+                    {categories.find((c) => c.name === values.category)
+                      ?.subcategories?.length > 0 && (
+                      <div>
+                        <label className="block text-sm font-medium mb-1">
+                          Sub-Category
+                        </label>
+                        <select
+                          name="subCategory"
+                          value={values.subCategory || ""}
+                          onChange={(e) =>
+                            setFieldValue("subCategory", e.target.value)
+                          }
+                          className={inputClass}
+                        >
+                          <option value="" disabled>
+                            Select Sub-Category
+                          </option>
+                          {categories
+                            .find((c) => c.name === values.category)
+                            ?.subcategories.map((sub, i) => (
+                              <option key={i} value={sub.name}>
+                                {sub.name}
+                              </option>
+                            ))}
+                        </select>
+                      </div>
+                    )}
+
+                    {/* Other Fields */}
                     <Field
                       name="activeTime"
                       placeholder="e.g. 20 mins"
@@ -312,6 +385,7 @@ const Add_Recipe = () => {
                       component="div"
                       className="text-red-500 text-sm"
                     />
+
                     <Field
                       name="totalTime"
                       placeholder="e.g. 50 mins"
@@ -322,6 +396,7 @@ const Add_Recipe = () => {
                       component="div"
                       className="text-red-500 text-sm"
                     />
+
                     <Field
                       name="servings"
                       placeholder="Serves 4"

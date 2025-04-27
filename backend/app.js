@@ -40,9 +40,9 @@ app.use(
 app.use("/auth", userRouter);
 app.use("/profile", profileRouter );
 app.use("/recipe", recipeRouter );
-app.use("/category",verifyToken,categoryRouter );
+app.use("/category",categoryRouter );
 app.get("/check", verifyToken, (req, res) => {
-  res.status(200).json({ loggedIn: true, user: req.user,role: req.user.role });
+  res.status(200).json({ loggedIn: true, user: req.user, role: req.user.role });
 });
 
 app.listen(3000);

@@ -15,10 +15,20 @@ const RecipeSchema = new mongoose.Schema(
     imageUrl: {
       type: Buffer,
     },
-    category: String,
-    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "user" },
+    category: {
+      type: String,
+      default: "",
+    },
+    subcategory: {
+      type: String,
+      default: "",
+    },
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "user",
+      required: true,
+    },
 
-    // Ratings summary
     averageRating: { type: Number, default: 0 },
     totalRatings: { type: Number, default: 0 },
     ratingsCountByStars: {
@@ -40,8 +50,6 @@ const RecipeSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
-
-    // Saved recipes
     savedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: "user" }],
   },
   { timestamps: true }

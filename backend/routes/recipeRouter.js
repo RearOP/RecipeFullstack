@@ -5,45 +5,52 @@ const upload = require("../config/multer-config");
 const router = express.Router();
 const verifyToken = require("../middlewares/verifytoken");
 
+router.post(
+  "/create",
+  IsloggedIn,
+  verifyToken,
+  upload.single("image"),
+  async (req, res) => {
+    try {
+      let {
+        title,
+        description,
+        ingredients,
+        steps,
+        category,
+        subcategory, 
+        activeTime,
+        totalTime,
+        servings,
+      } = req.body;
 
-router.post("/create", IsloggedIn, verifyToken ,upload.single("image"), async (req, res) => {
-  try {
-    let {
-      title,
-      description,
-      ingredients,
-      steps,
-      category,
-      activeTime,
-      totalTime,
-      servings,
-    } = req.body;
+      ingredients = JSON.parse(ingredients);
+      steps = JSON.parse(steps);
+      const imageBuffer = req.file.buffer;
 
-    ingredients = JSON.parse(ingredients);
-    steps = JSON.parse(steps);
-    const imageBuffer = req.file.buffer;
-    // console.log("Uploaded file:", req.file);
+      const CreateRecipe = await recipeModel.create({
+        title,
+        description,
+        ingredients,
+        steps,
+        category,
+        subcategory, 
+        activeTime,
+        totalTime,
+        servings,
+        imageUrl: imageBuffer,
+        createdBy: req.user.id,
+      });
 
-    const CreateRecipe = await recipeModel.create({
-      title,
-      description,
-      ingredients,
-      steps,
-      category,
-      activeTime,
-      totalTime,
-      servings,
-      imageUrl: imageBuffer,
-      createdBy: req.user._id,
-    });
-    res.status(201).json({ success: true, CreateRecipe });
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).json({ success: false, message: "Server error" });
+      res.status(201).json({ success: true, CreateRecipe });
+    } catch (err) {
+      console.error(err.message);
+      res.status(500).json({ success: false, message: "Server error" });
+    }
   }
-});
+);
 
-router.get("/showrecipes", IsloggedIn, async (req, res) => {
+router.get("/showrecipes", async (req, res) => {
   try {
     const recipes = await recipeModel.find().populate("createdBy", "fullname");
 
@@ -68,7 +75,7 @@ router.get("/showrecipes", IsloggedIn, async (req, res) => {
   }
 });
 
-router.get("/recipeDetails/:id", IsloggedIn, verifyToken ,async (req, res) => {
+router.get("/recipeDetails/:id", IsloggedIn, verifyToken, async (req, res) => {
   try {
     const recipe = await recipeModel
       .findById(req.params.id)
