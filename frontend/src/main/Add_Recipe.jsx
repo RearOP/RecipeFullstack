@@ -9,7 +9,7 @@ const stepsLabels = [
   "Title & Description",
   "Ingredients",
   "Steps",
-  "Image & Details",
+  "Extras",
 ];
 
 const validationSchemas = [
@@ -40,6 +40,7 @@ const validationSchemas = [
   Yup.object({
     image: Yup.mixed().required("Image is required"),
     category: Yup.string().required("Category is required"),
+    subcategory: Yup.string().required("Sub category is required"),
     activeTime: Yup.string().required("Active Time is required"),
     totalTime: Yup.string().required("Total Time is required"),
     servings: Yup.string().required("Serves is required"),
@@ -71,6 +72,7 @@ const Add_Recipe = () => {
     formData.append("title", values.title);
     formData.append("description", values.description);
     formData.append("category", values.category);
+    formData.append("subcategory", values.subcategory);
     formData.append("activeTime", values.activeTime);
     formData.append("totalTime", values.totalTime);
     formData.append("servings", values.servings);
@@ -155,6 +157,7 @@ const Add_Recipe = () => {
               stepsList: [""],
               image: null,
               category: "",
+              subcategory: "", 
               activeTime: "",
               totalTime: "",
               servings: "",
@@ -325,11 +328,11 @@ const Add_Recipe = () => {
                         value={values.category}
                         onChange={(e) => {
                           setFieldValue("category", e.target.value);
-                          setFieldValue("subCategory", ""); // Reset subcategory when category changes
+                          setFieldValue("subcategory", ""); // Reset subcategory when category changes
                         }}
                         className={inputClass}
                       >
-                        <option value="" disabled>
+                        <option value="" disabled >
                           Select Category
                         </option>
                         {categories.map((cat) => (
@@ -345,7 +348,7 @@ const Add_Recipe = () => {
                       />
                     </div>
 
-                    {/* Subcategory Select (Only if selected category has subcategories) */}
+                    {/* subcategory Select (Only if selected category has subcategories) */}
                     {categories.find((c) => c.name === values.category)
                       ?.subcategories?.length > 0 && (
                       <div>
@@ -353,10 +356,10 @@ const Add_Recipe = () => {
                           Sub-Category
                         </label>
                         <select
-                          name="subCategory"
-                          value={values.subCategory || ""}
+                          name="subcategory"
+                          value={values.subcategory}
                           onChange={(e) =>
-                            setFieldValue("subCategory", e.target.value)
+                            setFieldValue("subcategory", e.target.value)
                           }
                           className={inputClass}
                         >

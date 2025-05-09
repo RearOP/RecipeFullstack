@@ -2,8 +2,8 @@ const express = require("express");
 const IsloggedIn = require("../middlewares/IsloggedIn");
 const recipeModel = require("../models/recipe_model");
 const upload = require("../config/multer-config");
-const router = express.Router();
 const verifyToken = require("../middlewares/verifytoken");
+const router = express.Router();
 
 router.post(
   "/create",
@@ -18,7 +18,7 @@ router.post(
         ingredients,
         steps,
         category,
-        subcategory, 
+        subcategory,
         activeTime,
         totalTime,
         servings,
@@ -34,7 +34,7 @@ router.post(
         ingredients,
         steps,
         category,
-        subcategory, 
+        subcategory,
         activeTime,
         totalTime,
         servings,
@@ -45,6 +45,57 @@ router.post(
       res.status(201).json({ success: true, CreateRecipe });
     } catch (err) {
       console.error(err.message);
+      res.status(500).json({ success: false, message: "Server error" });
+    }
+  }
+);
+
+router.post("/saveRecipeForUser", async (req, res) => {
+  try {
+    const { recipeId, userId } = req.body;
+    // console.log(req.body);
+
+    const recipe = await recipeModel.findById(recipeId);
+    if (!recipe) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Recipe not found" });
+    }
+
+    // Avoid duplicate saves
+    if (!recipe.savedBy.includes(userId)) {
+      recipe.savedBy.push(userId);
+      await recipe.save();
+    }
+
+    res
+      .status(200)
+      .json({ success: true, message: "Recipe saved successfully" });
+  } catch (err) {
+    console.error("Error saving recipe for user:", err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
+router.post(
+  "/unsaveRecipeForUser",
+  IsloggedIn,
+  verifyToken,
+  async (req, res) => {
+    try {
+      const { recipeId, userId } = req.body;
+
+      const recipe = await Recipe.findByIdAndUpdate(
+        recipeId,
+        { $pull: { savedBy: userId } },
+        { new: true }
+      );
+
+      res
+        .status(200)
+        .json({ success: true, message: "Recipe unsaved successfully" });
+    } catch (err) {
+      console.error("Error unsaving recipe for user:", err);
       res.status(500).json({ success: false, message: "Server error" });
     }
   }
@@ -100,6 +151,35 @@ router.get("/recipeDetails/:id", IsloggedIn, verifyToken, async (req, res) => {
     res.json(recipeObj);
   } catch (err) {
     console.error("Error in recipeDetails:", err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
+router.get("/showrecipesDetailpage", async (req, res) => {
+  try {
+    const recipes = await recipeModel
+      .find()
+      .sort({ createdAt: -1 }) // Sort by newest first
+      .limit(6) // Limit to 6 recipes
+      .populate("createdBy", "fullname");
+
+    const recipesWithImages = recipes.map((recipe) => {
+      const recipeObj = recipe.toObject();
+
+      if (recipe.imageUrl && Buffer.isBuffer(recipe.imageUrl)) {
+        recipeObj.imageUrl = `data:image/jpeg;base64,${recipe.imageUrl.toString(
+          "base64"
+        )}`;
+      } else {
+        recipeObj.imageUrl = null;
+      }
+
+      return recipeObj;
+    });
+
+    res.json(recipesWithImages);
+  } catch (err) {
+    console.error("Error in showrecipes:", err);
     res.status(500).json({ success: false, message: "Server error" });
   }
 });

@@ -4,7 +4,7 @@ import { FaPlus, FaMinus } from "react-icons/fa6";
 import { FiFilter } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
 
-const Category = () => {
+const Category = ({ onSelectCategory }) => {
   const [categories, setCategories] = useState([]);
   const [openIndex, setOpenIndex] = useState(null);
   const [showMobileFilter, setShowMobileFilter] = useState(false);
@@ -52,7 +52,7 @@ const Category = () => {
           showMobileFilter ? "" : "hidden"
         } md:block w-full md:w-[220px] sticky top-24`}
       >
-        <h2 className="text-3xl md:text-4xl font-bold mb-10 md:mb-20">
+        <h2 className="text-3xl md:text-4xl font-bold mb-5 md:mb-10">
           Categories
         </h2>
         <div className="space-y-4">
@@ -76,13 +76,14 @@ const Category = () => {
                     animate={{ height: "auto", opacity: 1 }}
                     exit={{ height: 0, opacity: 0 }}
                     transition={{ duration: 0.3 }}
-                    className="pl-4 mt-1 overflow-hidden text-gray-600"
+                    className="pl-4 overflow-hidden text-gray-600"
                   >
                     {cat.subcategories && cat.subcategories.length > 0 ? (
                       cat.subcategories.map((sub, i) => (
                         <li
                           key={i}
                           className="cursor-pointer hover:text-red-600 transition duration-300 ease-in mt-2"
+                          onClick={() => onSelectCategory(sub.name)}
                         >
                           {sub.name}
                         </li>

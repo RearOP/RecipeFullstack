@@ -19,6 +19,7 @@ const Header = () => {
           withCredentials: true,
         });
         setIsLoggedIn(res.data.loggedIn);
+        // console.log(res.data);
         setAdmin(res.data.role === "admin");
       } catch (err) {
         console.error("Auth check failed:", err.message);

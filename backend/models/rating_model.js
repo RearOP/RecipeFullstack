@@ -14,6 +14,6 @@ const RatingSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-RatingSchema.index({ recipe: 1, user: 1 }, { unique: true }); // Prevent duplicate ratings
+RatingSchema.index({ recipe: 1, user: 1 }, { unique: true }); 
 
 module.exports = mongoose.model("rating", RatingSchema);

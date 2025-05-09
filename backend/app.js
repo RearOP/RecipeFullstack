@@ -6,6 +6,8 @@ const userRouter = require("./routes/userRouter");
 const profileRouter = require("./routes/profile_Router");
 const recipeRouter = require("./routes/recipeRouter");
 const categoryRouter = require("./routes/categoryRouter");
+const commentsRouter = require("./routes/commentsRouter");
+const ratingRouter = require("./routes/ratingRouter");
 const expressSession = require("express-session");
 const cookieParser = require("cookie-parser");
 const verifyToken = require("./middlewares/verifytoken");
@@ -41,6 +43,8 @@ app.use("/auth", userRouter);
 app.use("/profile", profileRouter );
 app.use("/recipe", recipeRouter );
 app.use("/category",categoryRouter );
+app.use("/comments",commentsRouter );
+app.use("/rating",ratingRouter );
 app.get("/check", verifyToken, (req, res) => {
   res.status(200).json({ loggedIn: true, user: req.user, role: req.user.role });
 });

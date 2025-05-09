@@ -9,30 +9,43 @@ import axios from "axios";
 
 const Index = () => {
   const [recipes, setRecipes] = useState([]);
-    const [search, setDataSearch] = useState("");
-    useEffect(() => {
-      const fetchRecipes = async () => {
-        try {
-          const res = await axios.get(
-            "http://localhost:3000/recipe/showrecipes",
-            {
-              withCredentials: true,
-            }
-          );
-          setRecipes(res.data); // make sure this matches your backend response shape
-        } catch (error) {
-          console.error(
-            "Failed to fetch recipes:",
-            error.response?.data || error.message
-          );
-        }
-      };
-  
-      fetchRecipes();
-    }, []);
-    const filteredRecipes = recipes.filter((recipe) =>
-      recipe.title.toLowerCase().includes(search.toLowerCase())
-    );
+  const [search, setDataSearch] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
+  useEffect(() => {
+    const fetchRecipes = async () => {
+      try {
+        const res = await axios.get(
+          "http://localhost:3000/recipe/showrecipes",
+          {
+            withCredentials: true,
+          }
+        );
+        setRecipes(res.data); // make sure this matches your backend response shape
+      } catch (error) {
+        console.error(
+          "Failed to fetch recipes:",
+          error.response?.data || error.message
+        );
+      }
+    };
+
+    fetchRecipes();
+  }, []);
+  const filteredRecipes = recipes.filter((recipe) => {
+    const matchesSearch = (recipe?.title?.toLowerCase() || '')
+      .includes(search.toLowerCase()) ||
+      (recipe?.createdBy?.fullname?.toLowerCase() || '')
+      .includes(search.toLowerCase()) ||
+      (recipe?.category?.toLowerCase() || '')
+      .includes(search.toLowerCase()) ||
+      (recipe?.subcategory?.toLowerCase() || '')
+      .includes(search.toLowerCase());
+    const matchesCategory = selectedCategory
+      ? recipe.category === selectedCategory ||
+        recipe.subcategory === selectedCategory
+      : true;
+    return matchesSearch && matchesCategory;
+  });
   return (
     <>
       <div className="min-h-screen font-[Montserrat]">
@@ -45,7 +58,7 @@ const Index = () => {
             <div className="flex flex-col lg:flex-row gap-10">
               {/* Sidebar */}
               <div className="w-full lg:w-[220px]">
-                <Category />
+                <Category onSelectCategory={setSelectedCategory}/>
               </div>
 
               {/* Recipes & Top Bar */}
@@ -77,14 +90,15 @@ const Index = () => {
           <div className="w-full py-10">
             <div className="w-full rounded-[30px] bg-red-700 shadow-lg p-8 sm:p-10 text-center text-white">
               <h3 className="text-2xl sm:text-3xl font-bold mb-4">
-                Be the first to know about the latest deals, receive new trending recipes & more!
+                Be the first to know about the latest deals, receive new
+                trending recipes & more!
               </h3>
               <p className="text-white/80 mb-6">
                 Join our newsletter and never miss out on exclusive content
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4 max-w-2xl mx-auto">
-                <input 
-                  type="email" 
+                <input
+                  type="email"
                   className="py-3 px-6 w-full outline-none border-2 border-white rounded-full bg-white/10 placeholder-white/70 text-white"
                   placeholder="Enter your email address"
                 />

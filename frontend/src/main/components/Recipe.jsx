@@ -23,8 +23,8 @@ const Recipe = ({ recipes }) => {
               <div className="flex items-center gap-1">
                 <FaStar className="text-yellow-500" />
                 <span>
-                  {recipe.averageRating?.toFixed(1) || 0} (
-                  {recipe.totalRatings || 0})
+                  {recipe.averageRating ? recipe.averageRating : 0}(
+                  {recipe.totalRatings ? recipe.totalRatings : 0})
                 </span>
               </div>
               <span className="text-gray-400">
