@@ -10,8 +10,6 @@ Kocina is a fullstack web application built to help users quickly discover recip
 
 ❤️ Save Favorites — Bookmark your go-to meals
 
-🧠 Ingredient Intelligence — Get suggestions based on what you have
-
 ⚡ Fast & Responsive — Built with a modern fullstack architecture
 
 🛠 Tech Stack
@@ -35,6 +33,8 @@ Configure your API keys and environment variables as needed
 Meal planning & shopping list
 
 Social sharing of recipes
+
+Videos of recipes
 
 🤝 Contributions
 Pull requests welcome! If you find a bug or have an idea, open an issue or PR.
