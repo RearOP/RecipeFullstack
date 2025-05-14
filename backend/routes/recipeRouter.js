@@ -44,7 +44,7 @@ router.post(
 
       res.status(201).json({ success: true, CreateRecipe });
     } catch (err) {
-      console.error(err.message);
+      // console.error(err.message);
       res.status(500).json({ success: false, message: "Server error" });
     }
   }
@@ -72,7 +72,7 @@ router.post("/saveRecipeForUser", async (req, res) => {
       .status(200)
       .json({ success: true, message: "Recipe saved successfully" });
   } catch (err) {
-    console.error("Error saving recipe for user:", err);
+    // console.error("Error saving recipe for user:", err);
     res.status(500).json({ success: false, message: "Server error" });
   }
 });
@@ -84,18 +84,25 @@ router.post(
   async (req, res) => {
     try {
       const { recipeId, userId } = req.body;
+      // console.log("Unsave request:", { recipeId, userId });
 
-      const recipe = await Recipe.findByIdAndUpdate(
+      const recipe = await recipeModel.findByIdAndUpdate(
         recipeId,
         { $pull: { savedBy: userId } },
         { new: true }
       );
 
+      if (!recipe) {
+        return res
+          .status(404)
+          .json({ success: false, message: "Recipe not found" });
+      }
+
       res
         .status(200)
         .json({ success: true, message: "Recipe unsaved successfully" });
     } catch (err) {
-      console.error("Error unsaving recipe for user:", err);
+      console.error("Error unsaving recipe:", err);
       res.status(500).json({ success: false, message: "Server error" });
     }
   }
@@ -121,7 +128,7 @@ router.get("/showrecipes", async (req, res) => {
 
     res.json(recipesWithImages);
   } catch (err) {
-    console.error("Error in showrecipes:", err);
+    // console.error("Error in showrecipes:", err);
     res.status(500).json({ success: false, message: "Server error" });
   }
 });
@@ -150,7 +157,7 @@ router.get("/recipeDetails/:id", IsloggedIn, verifyToken, async (req, res) => {
 
     res.json(recipeObj);
   } catch (err) {
-    console.error("Error in recipeDetails:", err);
+    // console.error("Error in recipeDetails:", err);
     res.status(500).json({ success: false, message: "Server error" });
   }
 });
@@ -179,7 +186,16 @@ router.get("/showrecipesDetailpage", async (req, res) => {
 
     res.json(recipesWithImages);
   } catch (err) {
-    console.error("Error in showrecipes:", err);
+    // console.error("Error in showrecipes:", err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
+router.get("/savedRecipes/:userId", async (req, res) => {
+  try {
+    const recipes = await recipeModel.find({ savedBy: req.params.userId });
+    res.json(recipes);
+  } catch (error) {
     res.status(500).json({ success: false, message: "Server error" });
   }
 });

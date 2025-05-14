@@ -2,9 +2,9 @@ import { React, useEffect, useState } from "react";
 import Footer from "./components/Footer";
 import Header from "./components/Header";
 import { motion } from "framer-motion";
-import { FaReply, FaTrash } from "react-icons/fa";
+import { FaReply, FaTrash, FaChevronDown, FaChevronUp } from "react-icons/fa";
 import { FaPencil, FaRegPaperPlane } from "react-icons/fa6";
-import { CiBookmark } from "react-icons/ci";
+import { BsBookmarkCheckFill, BsBookmark } from "react-icons/bs";
 import { FiClock, FiRefreshCw, FiUsers } from "react-icons/fi";
 import StarRatings from "react-star-ratings";
 import axios from "axios";
@@ -16,12 +16,45 @@ const RecipeDetails = () => {
   const [rating, setRating] = useState();
   const [result, setResult] = useState({});
   const [showcomments, setShowcomments] = useState([]);
+  const [savedRecipesList, setSavedRecipesList] = useState([]);
   const [replyingTo, setReplyingTo] = useState(null); // holds index or ID of comment being replied to
   const [replyText, setReplyText] = useState("");
   const [CommentEditId, setCommentEditId] = useState(null);
   const [editingReplyId, setEditingReplyId] = useState(null);
   const [commentText, setCommentText] = useState("");
   const [IsLoggedIn, setIsLoggedIn] = useState(false);
+  const [expandedComments, setExpandedComments] = useState({});
+
+  const ITEMS_PER_PAGE = 5;
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // Updated to show all comments without flattening
+  const totalPages = Math.ceil(showcomments.length / ITEMS_PER_PAGE);
+  const paginatedComments = showcomments.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
+
+  const recipeId = result._id;
+  const userId = IsLoggedIn?.user?.id;
+  const isSaved = savedRecipesList.some((recipe) => recipe._id === recipeId);
+
+  const fetchSavedRecipes = async () => {
+    if (userId) {
+      try {
+        const res = await axios.get(
+          `http://localhost:3000/recipe/savedRecipes/${userId}`,
+          { withCredentials: true }
+        );
+        setSavedRecipesList(res.data);
+      } catch (err) {
+        console.error(
+          "Failed to fetch saved recipes:",
+          err.response?.data || err.message
+        );
+      }
+    }
+  };
 
   const showComment = async () => {
     try {
@@ -31,7 +64,7 @@ const RecipeDetails = () => {
       setShowcomments(showcom.data.comments);
     } catch (err) {
       console.error(
-        "Failed to fetch recipe:",
+        "Failed to fetch comments:",
         err.response?.data || err.message
       );
     }
@@ -57,6 +90,13 @@ const RecipeDetails = () => {
   }, []);
 
   useEffect(() => {
+    if (userId) {
+      fetchSavedRecipes();
+    }
+  }, [userId]);
+
+  // Fetch recipe details
+  useEffect(() => {
     const fetchRecipe = async () => {
       try {
         const res = await axios.get(
@@ -66,7 +106,6 @@ const RecipeDetails = () => {
           }
         );
         setResult(res.data);
-        // console.log(res.data);
       } catch (err) {
         console.error(
           "Failed to fetch recipe:",
@@ -78,6 +117,7 @@ const RecipeDetails = () => {
     fetchRecipe();
   }, [id]);
 
+  // Fetch user's rating for this recipe
   useEffect(() => {
     const fetchUserRating = async () => {
       try {
@@ -105,7 +145,6 @@ const RecipeDetails = () => {
         },
         { withCredentials: true }
       );
-      // console.log("Rating submitted:", reciperating.data);
     } catch (error) {
       console.error(
         "Failed to give rating",
@@ -115,13 +154,18 @@ const RecipeDetails = () => {
   };
 
   const saveRecipe = async (recipeId, userId) => {
+    if (!userId) {
+      console.error("Cannot save recipe: User not logged in");
+      return;
+    }
     try {
-      const recipsave = await axios.post(
+      await axios.post(
         "http://localhost:3000/recipe/saveRecipeForUser",
         { recipeId, userId }, // This is the data being sent
         { withCredentials: true } // This is config (for cookies/auth)
       );
-      // console.log("Recipe saved:", recipsave.data);
+      // Refresh saved recipes after saving
+      fetchSavedRecipes();
     } catch (error) {
       console.error(
         "Failed to save recipe:",
@@ -130,40 +174,90 @@ const RecipeDetails = () => {
     }
   };
 
+  const UnsaveRecipe = async (recipeId, userId) => {
+    if (!userId) {
+      console.error("Cannot unsave recipe: User not logged in");
+      return;
+    }
+    try {
+      await axios.post(
+        "http://localhost:3000/recipe/unsaveRecipeForUser",
+        { recipeId, userId },
+        { withCredentials: true }
+      );
+      // Refresh saved recipes after unsaving
+      fetchSavedRecipes();
+    } catch (error) {
+      console.error(
+        "Failed to unsave recipe:",
+        error.response?.data || error.message
+      );
+    }
+  };
+
   const handleMainCommentSubmit = async (text) => {
-    const res = await axios.post(
-      "http://localhost:3000/comments/writecomment",
-      {
-        recipeId: id,
-        user: IsLoggedIn.user.id,
-        text,
-      },
-      { withCredentials: true }
-    );
-    showComment();
+    if (!IsLoggedIn?.user?.id) {
+      console.error("Cannot comment: User not logged in");
+      return;
+    }
+    try {
+      await axios.post(
+        "http://localhost:3000/comments/writecomment",
+        {
+          recipeId: id,
+          user: IsLoggedIn.user.id,
+          text,
+        },
+        { withCredentials: true }
+      );
+      showComment();
+    } catch (error) {
+      console.error(
+        "Failed to submit comment:",
+        error.response?.data || error.message
+      );
+    }
   };
 
   const handleReplySubmit = async (commentIndex, replyText) => {
+    if (!IsLoggedIn?.user?.id) {
+      console.error("Cannot reply: User not logged in");
+      return;
+    }
     const commentId = showcomments[commentIndex]._id;
 
-    const res = await axios.post(
-      `http://localhost:3000/comments/reply/${commentId}`,
-      {
-        user: IsLoggedIn.user.id,
-        text: replyText,
-      },
-      { withCredentials: true }
-    );
+    try {
+      await axios.post(
+        `http://localhost:3000/comments/reply/${commentId}`,
+        {
+          user: IsLoggedIn.user.id,
+          text: replyText,
+        },
+        { withCredentials: true }
+      );
 
-    // const updatedComments = [...showcomments];
-    // updatedComments[commentIndex] = res.data.comment;
-    // console.log(res.data.comment);
-    showComment();
+      showComment();
+
+      // Automatically expand replies when a new reply is added
+      setExpandedComments((prev) => ({
+        ...prev,
+        [commentId]: true,
+      }));
+    } catch (error) {
+      console.error(
+        "Failed to submit reply:",
+        error.response?.data || error.message
+      );
+    }
   };
 
   const Deletereply = async (replyId) => {
+    if (!IsLoggedIn?.user?.id) {
+      console.error("Cannot delete reply: User not logged in");
+      return;
+    }
     try {
-      const res = await axios.post(
+      await axios.post(
         `http://localhost:3000/comments/replydelete/${replyId}`,
         {
           user: IsLoggedIn.user.id,
@@ -171,8 +265,6 @@ const RecipeDetails = () => {
         { withCredentials: true }
       );
 
-      // Refresh or remove the reply from state here
-      // console.log("Reply deleted", res.data);
       showComment();
     } catch (err) {
       console.error("Delete failed:", err.response?.data || err.message);
@@ -180,6 +272,10 @@ const RecipeDetails = () => {
   };
 
   const editReply = async (commentIndex, replyIndex, replyText) => {
+    if (!IsLoggedIn?.user?.id) {
+      console.error("Cannot edit reply: User not logged in");
+      return;
+    }
     const comment = showcomments[commentIndex];
     if (!comment) return;
 
@@ -187,10 +283,9 @@ const RecipeDetails = () => {
     if (!reply) return;
 
     const replyId = reply._id;
-    // console.log(replyId);
 
     try {
-      const res = await axios.post(
+      await axios.post(
         `http://localhost:3000/comments/replyedit/${replyId}`,
         {
           user: IsLoggedIn.user.id,
@@ -198,7 +293,6 @@ const RecipeDetails = () => {
         },
         { withCredentials: true }
       );
-      // console.log(res.data);
       showComment();
     } catch (error) {
       console.error("Failed to edit reply:", error);
@@ -206,13 +300,17 @@ const RecipeDetails = () => {
   };
 
   const editComment = async (commentIndex, replyText) => {
+    if (!IsLoggedIn?.user?.id) {
+      console.error("Cannot edit comment: User not logged in");
+      return;
+    }
     const comment = showcomments[commentIndex];
     if (!comment) return;
 
     const commentId = comment._id;
 
     try {
-      const res = await axios.post(
+      await axios.post(
         `http://localhost:3000/comments/editcomment/${commentId}`,
         {
           user: IsLoggedIn.user.id,
@@ -221,24 +319,18 @@ const RecipeDetails = () => {
         { withCredentials: true }
       );
       showComment();
-      // console.log(res.data);
-
-      // if (res.data.success) {
-      //   const updatedComments = [...showcomments];
-      //   updatedComments[commentIndex] = {
-      //     ...comment,
-      //     text: replyText,
-      //   };
-      //   setShowcomments(updatedComments);
-      // }
     } catch (error) {
       console.error("Failed to edit comment:", error);
     }
   };
 
   const DeleteComment = async (commentId) => {
+    if (!IsLoggedIn?.user?.id) {
+      console.error("Cannot delete comment: User not logged in");
+      return;
+    }
     try {
-      const res = await axios.post(
+      await axios.post(
         `http://localhost:3000/comments/deleteComment/${commentId}`,
         {
           user: IsLoggedIn.user.id,
@@ -246,17 +338,19 @@ const RecipeDetails = () => {
         { withCredentials: true }
       );
 
-      // console.log("Comment deleted", res.data);
       showComment();
     } catch (err) {
       console.error("Delete failed:", err.response?.data || err.message);
     }
   };
 
-  const recipeId = result._id;
-  const userId = IsLoggedIn?.user?.id;
-  if (!result || !IsLoggedIn?.user) return <div>Loading...</div>;
-  // console.log(userId);
+  // Toggle replies visibility for a comment
+  const toggleReplies = (commentId) => {
+    setExpandedComments((prev) => ({
+      ...prev,
+      [commentId]: !prev[commentId],
+    }));
+  };
 
   return (
     <div className="min-h-screen font-[Montserrat] bg-gray-50">
@@ -317,13 +411,25 @@ const RecipeDetails = () => {
                   {result?.createdBy?.fullname}
                 </span>
               </p>
-              <button
-                className="bg-transparentoverflow-hidden"
-                title="Save Recipe"
-                onClick={() => saveRecipe(recipeId, userId)}
-              >
-                <CiBookmark className="h-6 w-6" />
-              </button>
+              {/* Only show bookmark buttons if user is logged in */}
+              {userId &&
+                (isSaved ? (
+                  <button
+                    className="bg-transparent overflow-hidden"
+                    title="Unsave Recipe"
+                    onClick={() => UnsaveRecipe(recipeId, userId)}
+                  >
+                    <BsBookmarkCheckFill className="h-6 w-6" />
+                  </button>
+                ) : (
+                  <button
+                    className="bg-transparent overflow-hidden"
+                    title="Save Recipe"
+                    onClick={() => saveRecipe(recipeId, userId)}
+                  >
+                    <BsBookmark className="h-6 w-6" />
+                  </button>
+                ))}
             </div>
             <div className="flex justify-between items-center">
               <p className="text-sm text-gray-600">2 recipes</p>
@@ -416,121 +522,64 @@ const RecipeDetails = () => {
                 No comments yet. Be the first!
               </p>
             ) : (
-              showcomments.map((comment, commentIndex) => (
-                <div
-                  key={comment._id}
-                  className="bg-white shadow-md p-4 rounded-xl"
-                >
-                  <div className="flex items-center gap-4 md:gap-5">
-                    <img
-                      src={comment.user.profilePic}
-                      alt="Profile"
-                      className="w-10 h-10 rounded-full object-cover"
-                    />
-                    <h4 className="font-bold text-gray-800 text-sm md:text-base">
-                      {comment.user.fullname}
-                    </h4>
-                  </div>
+              <>
+                {paginatedComments.map((comment, commentIndex) => {
+                  const hasReplies =
+                    comment.replies && comment.replies.length > 0;
+                  const isExpanded = expandedComments[comment._id];
 
-                  <div className="flex items-center justify-end gap-4 md:gap-5 mt-2 md:mt-0">
-                    <FaReply
-                      className="text-md text-gray-400 cursor-pointer"
-                      onClick={() => {
-                        setReplyingTo(commentIndex);
-                        setReplyText("");
-                      }}
-                    />
-                    {comment.user._id === IsLoggedIn.user.id && (
-                      <>
-                        <FaPencil
-                          className="text-md text-green-600 cursor-pointer"
-                          onClick={() => {
-                            setCommentEditId(comment._id);
-                            setReplyText(comment.text);
-                          }}
-                        />
-                        <FaTrash
-                          className="text-md text-red-400 cursor-pointer"
-                          onClick={() => DeleteComment(comment._id)} // You'll need to implement this
-                        />
-                      </>
-                    )}
-                  </div>
-
-                  {IsLoggedIn?.user && CommentEditId === comment._id ? (
-                    <form
-                      onSubmit={(e) => {
-                        e.preventDefault();
-                        editComment(commentIndex, replyText);
-                        setCommentEditId(null);
-                        setReplyText("");
-                      }}
-                      className="mt-3 ml-6 flex items-center justify-between"
-                    >
-                      <textarea
-                        className="px-5 py-2 w-[70%] rounded-md border-2 border-gray-400 outline-none resize-none"
-                        rows="2"
-                        placeholder="Edit your reply..."
-                        value={replyText}
-                        onChange={(x) => setReplyText(x.target.value)}
-                      />
-                      <button
-                        type="submit"
-                        className="flex items-center px-4 py-1 border bg-black text-white rounded-full hover:bg-red-700 transition-all duration-500"
-                      >
-                        <span className="mr-2">
-                          <FaRegPaperPlane />
-                        </span>
-                        Send
-                      </button>
-                    </form>
-                  ) : (
-                    <p className="text-sm text-gray-600 mt-2 md:mt-0">
-                      {comment.text}
-                    </p>
-                  )}
-
-                  {/* Replies */}
-                  {comment.replies?.map((reply, replyIndex) => (
+                  return (
                     <div
-                      key={reply._id}
-                      className="ml-6 mt-4 border-l-3 border-gray-500 pl-4"
+                      key={comment._id}
+                      className="bg-white shadow-md p-4 rounded-xl"
                     >
+                      {/* Comment header */}
                       <div className="flex items-center gap-4 md:gap-5">
                         <img
-                          src={reply.user.profilePic}
+                          src={comment.user.profilePic}
                           alt="Profile"
-                          className="w-7 h-7 rounded-full object-cover"
+                          className="w-10 h-10 rounded-full object-cover"
                         />
-                        <h5 className="font-semibold text-gray-700 text-xs md:text-base">
-                          {reply.user.fullname}
-                        </h5>
+                        <h4 className="font-bold text-gray-800 text-sm md:text-base">
+                          {comment.user.fullname}
+                        </h4>
                       </div>
 
+                      {/* Comment action buttons */}
                       <div className="flex items-center justify-end gap-4 md:gap-5 mt-2 md:mt-0">
-                        {reply.user._id === IsLoggedIn.user.id && (
+                        {userId && (
+                          <FaReply
+                            className="text-md text-gray-400 cursor-pointer"
+                            onClick={() => {
+                              setReplyingTo(commentIndex);
+                              setReplyText("");
+                            }}
+                          />
+                        )}
+                        {userId && comment.user._id === userId && (
                           <>
                             <FaPencil
                               className="text-md text-green-600 cursor-pointer"
                               onClick={() => {
-                                setEditingReplyId(reply._id);
-                                setReplyText(reply.text);
+                                setCommentEditId(comment._id);
+                                setReplyText(comment.text);
                               }}
                             />
                             <FaTrash
                               className="text-md text-red-400 cursor-pointer"
-                              onClick={() => Deletereply(reply._id)}
+                              onClick={() => DeleteComment(comment._id)}
                             />
                           </>
                         )}
                       </div>
 
-                      {IsLoggedIn?.user && editingReplyId === reply._id ? (
+                      {/* Comment text or edit */}
+                      {userId && CommentEditId === comment._id ? (
                         <form
-                          onSubmit={(x) => {
-                            x.preventDefault();
-                            editReply(commentIndex, replyIndex, replyText);
-                            setEditingReplyId(null);
+                          onSubmit={(e) => {
+                            e.preventDefault();
+                            editComment(commentIndex, replyText);
+                            setCommentEditId(null);
                             setReplyText("");
                           }}
                           className="mt-3 ml-6 flex items-center justify-between"
@@ -553,48 +602,169 @@ const RecipeDetails = () => {
                           </button>
                         </form>
                       ) : (
-                        <p className="text-sm text-gray-600 mt-3 md:mt-2">
-                          {reply.text}
+                        <p className="text-sm text-gray-600 mt-2 md:mt-0">
+                          {comment.text}
                         </p>
                       )}
-                    </div>
-                  ))}
 
-                  {/* Reply form */}
-                  {IsLoggedIn?.user && replyingTo === commentIndex && (
-                    <form
-                      onSubmit={(e) => {
-                        e.preventDefault();
-                        handleReplySubmit(commentIndex, replyText);
-                        setReplyText("");
-                        setReplyingTo(null);
-                      }}
-                      className="mt-3 ml-6 flex items-center justify-between"
-                    >
-                      <textarea
-                        className="px-5 py-2 w-[70%] rounded-md border-2 border-gray-400 outline-none resize-none"
-                        rows="2"
-                        placeholder="Write your reply..."
-                        value={replyText}
-                        onChange={(e) => setReplyText(e.target.value)}
-                      />
+                      {/* Reply form */}
+                      {userId && replyingTo === commentIndex && (
+                        <form
+                          onSubmit={(e) => {
+                            e.preventDefault();
+                            handleReplySubmit(commentIndex, replyText);
+                            setReplyText("");
+                            setReplyingTo(null);
+                          }}
+                          className="mt-3 ml-6 flex items-center justify-between"
+                        >
+                          <textarea
+                            className="px-5 py-2 w-[70%] rounded-md border-2 border-gray-400 outline-none resize-none"
+                            rows="2"
+                            placeholder="Write your reply..."
+                            value={replyText}
+                            onChange={(e) => setReplyText(e.target.value)}
+                          />
+                          <button
+                            type="submit"
+                            className="flex items-center px-4 py-1 border bg-black text-white rounded-full hover:bg-red-700 transition-all duration-500"
+                          >
+                            <span className="mr-2">
+                              <FaRegPaperPlane />
+                            </span>
+                            Send
+                          </button>
+                        </form>
+                      )}
+
+                      {/* Show Replies Button */}
+                      {hasReplies && (
+                        <div className="mt-4 ml-6">
+                          <button
+                            onClick={() => toggleReplies(comment._id)}
+                            className="flex items-center text-sm text-red-600 hover:text-red-800 transition-colors"
+                          >
+                            {isExpanded ? (
+                              <>
+                                <FaChevronUp className="mr-1" />
+                                Hide Replies ({comment.replies.length})
+                              </>
+                            ) : (
+                              <>
+                                <FaChevronDown className="mr-1" />
+                                Show Replies ({comment.replies.length})
+                              </>
+                            )}
+                          </button>
+                        </div>
+                      )}
+
+                      {/* Replies Section */}
+                      {hasReplies && isExpanded && (
+                        <div className="mt-4 space-y-4">
+                          {comment.replies.map((reply, replyIndex) => (
+                            <div
+                              key={reply._id}
+                              className="ml-6 mt-4 border-l-3 border-gray-500 pl-4"
+                            >
+                              <div className="flex items-center gap-4 md:gap-5">
+                                <img
+                                  src={reply.user.profilePic}
+                                  alt="Profile"
+                                  className="w-7 h-7 rounded-full object-cover"
+                                />
+                                <h5 className="font-semibold text-gray-700 text-xs md:text-base">
+                                  {reply.user.fullname}
+                                </h5>
+                              </div>
+
+                              <div className="flex items-center justify-end gap-4 md:gap-5 mt-2 md:mt-0">
+                                {userId && reply.user._id === userId && (
+                                  <>
+                                    <FaPencil
+                                      className="text-md text-green-600 cursor-pointer"
+                                      onClick={() => {
+                                        setEditingReplyId(reply._id);
+                                        setReplyText(reply.text);
+                                      }}
+                                    />
+                                    <FaTrash
+                                      className="text-md text-red-400 cursor-pointer"
+                                      onClick={() => Deletereply(reply._id)}
+                                    />
+                                  </>
+                                )}
+                              </div>
+
+                              {userId && editingReplyId === reply._id ? (
+                                <form
+                                  onSubmit={(x) => {
+                                    x.preventDefault();
+                                    editReply(
+                                      commentIndex,
+                                      replyIndex,
+                                      replyText
+                                    );
+                                    setEditingReplyId(null);
+                                    setReplyText("");
+                                  }}
+                                  className="mt-3 ml-6 flex items-center justify-between"
+                                >
+                                  <textarea
+                                    className="px-5 py-2 w-[70%] rounded-md border-2 border-gray-400 outline-none resize-none"
+                                    rows="2"
+                                    placeholder="Edit your reply..."
+                                    value={replyText}
+                                    onChange={(x) =>
+                                      setReplyText(x.target.value)
+                                    }
+                                  />
+                                  <button
+                                    type="submit"
+                                    className="flex items-center px-4 py-1 border bg-black text-white rounded-full hover:bg-red-700 transition-all duration-500"
+                                  >
+                                    <span className="mr-2">
+                                      <FaRegPaperPlane />
+                                    </span>
+                                    Send
+                                  </button>
+                                </form>
+                              ) : (
+                                <p className="text-sm text-gray-600 mt-3 md:mt-2">
+                                  {reply.text}
+                                </p>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+
+                {/* Pagination controls */}
+                {totalPages > 1 && (
+                  <div className="flex justify-center mt-6 gap-2">
+                    {Array.from({ length: totalPages }, (_, i) => (
                       <button
-                        type="submit"
-                        className="flex items-center px-4 py-1 border bg-black text-white rounded-full hover:bg-red-700 transition-all duration-500"
+                        key={i}
+                        onClick={() => setCurrentPage(i + 1)}
+                        className={`px-3 py-1 rounded ${
+                          currentPage === i + 1
+                            ? "bg-red-600 text-white"
+                            : "bg-gray-200"
+                        }`}
                       >
-                        <span className="mr-2">
-                          <FaRegPaperPlane />
-                        </span>
-                        Send
+                        {i + 1}
                       </button>
-                    </form>
-                  )}
-                </div>
-              ))
+                    ))}
+                  </div>
+                )}
+              </>
             )}
 
-            {/* Main comment form */}
-            {IsLoggedIn?.user && (
+            {/* Main comment form - only shown if user is logged in */}
+            {userId ? (
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
@@ -621,6 +791,10 @@ const RecipeDetails = () => {
                   </button>
                 </div>
               </form>
+            ) : (
+              <p className="text-center text-gray-500 py-4">
+                Please log in to comment on this recipe.
+              </p>
             )}
           </motion.div>
         </div>

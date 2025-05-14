@@ -9,7 +9,7 @@ router.get("/:recipeId", async (req, res) => {
       .populate({
         path: "replies.user",
         select: "fullname profilePic",
-      });
+      }).sort({ createdAt: -1 });
     // Convert profilePic to base64 if it's a Buffer
     comments.forEach((comment) => {
       if (comment.user.profilePic) {

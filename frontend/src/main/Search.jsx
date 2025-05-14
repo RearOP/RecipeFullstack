@@ -7,6 +7,12 @@ import axios from "axios";
 const Search = () => {
   const [recipes, setRecipes] = useState([]);
   const [search, setDataSearch] = useState("");
+  const [sortOption, setSortOption] = useState("latest");
+
+  const handleSortChange = (option) => {
+    setSortOption(option);
+  };
+
   useEffect(() => {
     const fetchRecipes = async () => {
       try {
@@ -27,9 +33,34 @@ const Search = () => {
 
     fetchRecipes();
   }, []);
-  const filteredRecipes = recipes.filter((recipe) =>
-    recipe.title.toLowerCase().includes(search.toLowerCase())
-  );
+
+  useEffect(() => {
+    const fetchRecipes = async () => {
+      try {
+        const res = await axios.get(
+          `http://localhost:3000/filterRecipe/${sortOption}`
+        );
+        setRecipes(res.data);
+      } catch (err) {
+        console.error("Failed to fetch recipes:", err.response?.data || err);
+      }
+    };
+
+    fetchRecipes();
+  }, [sortOption]);
+
+  const filteredRecipes = recipes.filter((recipe) => {
+    const matchesSearch =
+      (recipe?.title?.toLowerCase() || "").includes(search.toLowerCase()) ||
+      (recipe?.createdBy?.fullname?.toLowerCase() || "").includes(
+        search.toLowerCase()
+      ) ||
+      (recipe?.category?.toLowerCase() || "").includes(search.toLowerCase()) ||
+      (recipe?.subcategory?.toLowerCase() || "").includes(search.toLowerCase());
+
+    return matchesSearch;
+  });
+
   return (
     <div className="min-h-screen font-[Montserrat]">
       <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-10">
@@ -45,10 +76,13 @@ const Search = () => {
                   className="px-5 py-2 w-full sm:w-[70%] rounded-md border border-gray-200 bg-[#f9f5f4] outline-none"
                   onChange={(e) => setDataSearch(e.target.value)}
                 />
-                <select className="text-black px-4 py-3 rounded-full font-semibold text-sm outline-none">
-                  <option defaultValue>Sort by: Latest</option>
-                  <option>Sort by: Top Rated</option>
-                  <option>Sort by: Trending</option>
+                <select
+                  className="text-black px-4 py-3 rounded-full font-semibold text-sm outline-none"
+                  value={sortOption}
+                  onChange={(e) => handleSortChange(e.target.value)}
+                >
+                  <option defaultValue value="latest">Sort by: Latest</option>
+                  <option value="topRated">Sort by: Top Rated</option>
                 </select>
               </div>
               <Recipecard recipes={filteredRecipes} />
