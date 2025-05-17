@@ -39,28 +39,6 @@ module.exports.registeruser = async (req, res) => {
     return res.status(500).json({ message: "Internal server error" });
   }
 };
-
-// module.exports.loginUser = async (req, res) => {
-//   let { email, password } = req.body;
-//   let loguser = await userModel.findOne({ email: email });
-//   if (!loguser) {
-//     return res.status(401).json({ message: "Invalid credentials" });
-//   } else {
-//     bcrypt.compare(password, loguser.password, function (err, result) {
-//       if (result) {
-//         let token = generateToken(loguser);
-//         res.cookie("token", token, {
-//           httpOnly: true,
-//           secure: false,
-//           sameSite: "lax",
-//         });
-//         res.send("loggedIN");
-//       } else {
-//         return res.status(401).json({ message: "Invalid credentials" });
-//       }
-//     });
-//   }
-// };
 module.exports.loginUser = async (req, res) => {
   const { email, password } = req.body;
   const loguser = await userModel.findOne({ email: email });
