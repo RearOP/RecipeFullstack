@@ -38,12 +38,12 @@ const RecipeDetails = () => {
   const recipeId = result._id;
   const userId = IsLoggedIn?.user?.id;
   const isSaved = savedRecipesList.some((recipe) => recipe._id === recipeId);
-
+  const API_URL = "http://localhost:3000";
   const fetchSavedRecipes = async () => {
     if (userId) {
       try {
         const res = await axios.get(
-          `http://localhost:3000/recipe/savedRecipes/${userId}`,
+          `${API_URL}/recipe/savedRecipes/${userId}`,
           { withCredentials: true }
         );
         setSavedRecipesList(res.data);
@@ -58,7 +58,7 @@ const RecipeDetails = () => {
 
   const showComment = async () => {
     try {
-      const showcom = await axios.get(`http://localhost:3000/comments/${id}`, {
+      const showcom = await axios.get(`${API_URL}/comments/${id}`, {
         withCredentials: true,
       });
       setShowcomments(showcom.data.comments);
@@ -73,7 +73,7 @@ const RecipeDetails = () => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const res = await axios.get("http://localhost:3000/check", {
+        const res = await axios.get(`${API_URL}/check`, {
           withCredentials: true,
         });
         setIsLoggedIn(res.data); // If logged in, set state with user data
@@ -99,12 +99,9 @@ const RecipeDetails = () => {
   useEffect(() => {
     const fetchRecipe = async () => {
       try {
-        const res = await axios.get(
-          `http://localhost:3000/recipe/recipeDetails/${id}`,
-          {
-            withCredentials: true,
-          }
-        );
+        const res = await axios.get(`${API_URL}/recipe/recipeDetails/${id}`, {
+          withCredentials: true,
+        });
         setResult(res.data);
       } catch (err) {
         console.error(
@@ -121,7 +118,7 @@ const RecipeDetails = () => {
   useEffect(() => {
     const fetchUserRating = async () => {
       try {
-        const res = await axios.get(`http://localhost:3000/rating/user/${id}`, {
+        const res = await axios.get(`${API_URL}/rating/user/${id}`, {
           withCredentials: true,
         });
         setRating(res.data.rating); // Set the user's own rating
@@ -139,7 +136,7 @@ const RecipeDetails = () => {
   const AddRating = async (newRating) => {
     try {
       const reciperating = await axios.post(
-        `http://localhost:3000/rating/giverating/${id}`,
+        `${API_URL}/rating/giverating/${id}`,
         {
           rating: newRating,
         },
@@ -160,7 +157,7 @@ const RecipeDetails = () => {
     }
     try {
       await axios.post(
-        "http://localhost:3000/recipe/saveRecipeForUser",
+        `${API_URL}/recipe/saveRecipeForUser`,
         { recipeId, userId }, // This is the data being sent
         { withCredentials: true } // This is config (for cookies/auth)
       );
@@ -181,7 +178,7 @@ const RecipeDetails = () => {
     }
     try {
       await axios.post(
-        "http://localhost:3000/recipe/unsaveRecipeForUser",
+        `${API_URL}/recipe/unsaveRecipeForUser`,
         { recipeId, userId },
         { withCredentials: true }
       );
@@ -202,7 +199,7 @@ const RecipeDetails = () => {
     }
     try {
       await axios.post(
-        "http://localhost:3000/comments/writecomment",
+        `${API_URL}/comments/writecomment`,
         {
           recipeId: id,
           user: IsLoggedIn.user.id,
@@ -228,7 +225,7 @@ const RecipeDetails = () => {
 
     try {
       await axios.post(
-        `http://localhost:3000/comments/reply/${commentId}`,
+        `${API_URL}/comments/reply/${commentId}`,
         {
           user: IsLoggedIn.user.id,
           text: replyText,
@@ -258,7 +255,7 @@ const RecipeDetails = () => {
     }
     try {
       await axios.post(
-        `http://localhost:3000/comments/replydelete/${replyId}`,
+        `${API_URL}/comments/replydelete/${replyId}`,
         {
           user: IsLoggedIn.user.id,
         },
@@ -286,7 +283,7 @@ const RecipeDetails = () => {
 
     try {
       await axios.post(
-        `http://localhost:3000/comments/replyedit/${replyId}`,
+        `${API_URL}/comments/replyedit/${replyId}`,
         {
           user: IsLoggedIn.user.id,
           text: replyText,
@@ -311,7 +308,7 @@ const RecipeDetails = () => {
 
     try {
       await axios.post(
-        `http://localhost:3000/comments/editcomment/${commentId}`,
+        `${API_URL}/comments/editcomment/${commentId}`,
         {
           user: IsLoggedIn.user.id,
           text: replyText,
@@ -331,7 +328,7 @@ const RecipeDetails = () => {
     }
     try {
       await axios.post(
-        `http://localhost:3000/comments/deleteComment/${commentId}`,
+        `${API_URL}/comments/deleteComment/${commentId}`,
         {
           user: IsLoggedIn.user.id,
         },

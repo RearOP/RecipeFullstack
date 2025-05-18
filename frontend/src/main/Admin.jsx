@@ -20,16 +20,12 @@ const CategorySchema = Yup.object().shape({
 
 const Admin = () => {
   const navigate = useNavigate();
-
+  const API_URL = "http://localhost:3000";
   const handleSubmit = async (values) => {
     try {
-      const res = await axios.post(
-        "http://localhost:3000/category/create",
-        values,
-        {
-          withCredentials: true,
-        }
-      );
+      const res = await axios.post(`${API_URL}/category/create`, values, {
+        withCredentials: true,
+      });
 
       if (res.status === 200) {
         navigate("/");

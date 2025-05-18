@@ -5,6 +5,7 @@ import { FiFilter } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
 
 const Category = ({ onSelectCategory }) => {
+  const API_URL = "http://localhost:3000";
   const [categories, setCategories] = useState([]);
   const [openIndex, setOpenIndex] = useState(null);
   const [showMobileFilter, setShowMobileFilter] = useState(false);
@@ -17,7 +18,7 @@ const Category = ({ onSelectCategory }) => {
     const fetchCategories = async () => {
       try {
         const res = await axios.get(
-          "http://localhost:3000/category/showcategory"
+          `${API_URL}/category/showcategory`
         );
         setCategories(res.data);
       } catch (err) {

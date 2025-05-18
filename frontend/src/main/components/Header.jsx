@@ -8,6 +8,7 @@ const Header = () => {
   const [isProfileOpen, setisProfileOpen] = useState(false);
   const [IsLoggedIn, setIsLoggedIn] = useState(false);
   const [Admin, setAdmin] = useState(false);
+  const API_URL = "http://localhost:3000";
 
   const toggleDrawer = () => setIsOpen(!isOpen);
   const toggleProfile = () => setisProfileOpen(!isProfileOpen);
@@ -15,7 +16,7 @@ const Header = () => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const res = await axios.get("http://localhost:3000/check", {
+        const res = await axios.get(`${API_URL}/check`, {
           withCredentials: true,
         });
         setIsLoggedIn(res.data.loggedIn);
@@ -32,7 +33,7 @@ const Header = () => {
   const navigate = useNavigate();
   const handleLogout = async () => {
     try {
-      const res = await axios.get("http://localhost:3000/auth/logout", {
+      const res = await axios.get(`${API_URL}/auth/logout`, {
         withCredentials: true,
       });
       // console.log("Logout response:", res.status, res.data);

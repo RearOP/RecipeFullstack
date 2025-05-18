@@ -12,7 +12,7 @@ const Index = () => {
   const [search, setDataSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [sortOption, setSortOption] = useState("latest");
-
+  const API_URL = "http://localhost:3000";
   const handleSortChange = (option) => {
     setSortOption(option);
   };
@@ -20,7 +20,7 @@ const Index = () => {
   useEffect(() => {
     const fetchRecipes = async () => {
       try {
-        const res = await axios.get(`http://localhost:3000/filterRecipe/${sortOption}`);
+        const res = await axios.get(`${API_URL}/filterRecipe/${sortOption}`);
         setRecipes(res.data);
       } catch (err) {
         console.error("Failed to fetch recipes:", err.response?.data || err);
@@ -33,12 +33,15 @@ const Index = () => {
   const filteredRecipes = recipes.filter((recipe) => {
     const matchesSearch =
       (recipe?.title?.toLowerCase() || "").includes(search.toLowerCase()) ||
-      (recipe?.createdBy?.fullname?.toLowerCase() || "").includes(search.toLowerCase()) ||
+      (recipe?.createdBy?.fullname?.toLowerCase() || "").includes(
+        search.toLowerCase()
+      ) ||
       (recipe?.category?.toLowerCase() || "").includes(search.toLowerCase()) ||
       (recipe?.subcategory?.toLowerCase() || "").includes(search.toLowerCase());
 
     const matchesCategory = selectedCategory
-      ? recipe.category === selectedCategory || recipe.subcategory === selectedCategory
+      ? recipe.category === selectedCategory ||
+        recipe.subcategory === selectedCategory
       : true;
 
     return matchesSearch && matchesCategory;
@@ -85,8 +88,8 @@ const Index = () => {
         <div className="w-full py-10">
           <div className="w-full rounded-[30px] bg-red-700 shadow-lg p-8 sm:p-10 text-center text-white">
             <h3 className="text-2xl sm:text-3xl font-bold mb-4">
-              Be the first to know about the latest deals, receive new
-              trending recipes & more!
+              Be the first to know about the latest deals, receive new trending
+              recipes & more!
             </h3>
             <p className="text-white/80 mb-6">
               Join our newsletter and never miss out on exclusive content

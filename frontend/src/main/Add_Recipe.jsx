@@ -5,12 +5,7 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import axios from "axios";
 import { useNavigate } from "react-router";
-const stepsLabels = [
-  "Title & Description",
-  "Ingredients",
-  "Steps",
-  "Extras",
-];
+const stepsLabels = ["Title & Description", "Ingredients", "Steps", "Extras"];
 
 const validationSchemas = [
   Yup.object({
@@ -53,6 +48,7 @@ const Add_Recipe = () => {
   const [categories, setCategories] = useState([]);
   const [imagePreview, setImagePreview] = useState(null);
   const steps = ["Title & Description", "Ingredients", "Steps", "Extras"];
+  const API_URL = "http://localhost:3000";
 
   // Handle tab navigation
   const nextStep = () =>
@@ -83,16 +79,12 @@ const Add_Recipe = () => {
     formData.append("steps", JSON.stringify(values.stepsList));
 
     try {
-      const res = await axios.post(
-        "http://localhost:3000/recipe/create",
-        formData,
-        {
-          withCredentials: true,
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+      const res = await axios.post(`${API_URL}/recipe/create`, formData, {
+        withCredentials: true,
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
 
       if (res.status === 201) {
         // console.log("recipe created");
@@ -108,12 +100,9 @@ const Add_Recipe = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await axios.get(
-          "http://localhost:3000/category/showcategory",
-          {
-            withCredentials: true,
-          }
-        );
+        const res = await axios.get(`${API_URL}/category/showcategory`, {
+          withCredentials: true,
+        });
         setCategories(res.data);
       } catch (err) {
         console.error("Error fetching categories:", err);
@@ -157,7 +146,7 @@ const Add_Recipe = () => {
               stepsList: [""],
               image: null,
               category: "",
-              subcategory: "", 
+              subcategory: "",
               activeTime: "",
               totalTime: "",
               servings: "",
@@ -332,7 +321,7 @@ const Add_Recipe = () => {
                         }}
                         className={inputClass}
                       >
-                        <option value="" disabled >
+                        <option value="" disabled>
                           Select Category
                         </option>
                         {categories.map((cat) => (

@@ -17,9 +17,10 @@ const LoginSchema = Yup.object().shape({
 
 const SignIn = () => {
   let navigate = useNavigate();
+   const API_URL = "http://localhost:3000";
   async function handleLogin(values) {
     try {
-      const res = await axios.post("http://localhost:3000/auth/login", values, {
+      const res = await axios.post(`${API_URL}/auth/login`, values, {
         withCredentials: true,
       });
 

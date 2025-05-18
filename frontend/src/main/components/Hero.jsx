@@ -5,10 +5,11 @@ import axios from "axios";
 
 const Hero = () => {
   const [IsLoggedIn, setIsLoggedIn] = useState(false);
+  const API_URL = "http://localhost:3000";
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const res = await axios.get("http://localhost:3000/check", {
+        const res = await axios.get(`${API_URL}/check`, {
           withCredentials: true,
         });
         setIsLoggedIn(res.data.loggedIn);

@@ -167,7 +167,6 @@ router.get("/showrecipesDetailpage", async (req, res) => {
     const recipes = await recipeModel
       .find()
       .sort({ createdAt: -1 }) // Sort by newest first
-      .limit(6) // Limit to 6 recipes
       .populate("createdBy", "fullname");
 
     const recipesWithImages = recipes.map((recipe) => {

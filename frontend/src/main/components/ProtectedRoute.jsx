@@ -4,10 +4,11 @@ import axios from "axios";
 
 const ProtectedRoute = ({ children }) => {
   const [isAuth, setIsAuth] = useState(null);
-
+  const API_URL = "http://localhost:3000";
   useEffect(() => {
-    axios.get("http://localhost:3000/check", { withCredentials: true })
-      .then(res => setIsAuth(true))
+    axios
+      .get("${API_URL}/check", { withCredentials: true })
+      .then((res) => setIsAuth(true))
       .catch(() => setIsAuth(false));
   }, []);
 

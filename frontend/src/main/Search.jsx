@@ -8,7 +8,7 @@ const Search = () => {
   const [recipes, setRecipes] = useState([]);
   const [search, setDataSearch] = useState("");
   const [sortOption, setSortOption] = useState("latest");
-
+  const API_URL = "http://localhost:3000";
   const handleSortChange = (option) => {
     setSortOption(option);
   };
@@ -16,12 +16,9 @@ const Search = () => {
   useEffect(() => {
     const fetchRecipes = async () => {
       try {
-        const res = await axios.get(
-          "http://localhost:3000/recipe/showrecipes",
-          {
-            withCredentials: true,
-          }
-        );
+        const res = await axios.get(`${API_URL}/recipe/showrecipes`, {
+          withCredentials: true,
+        });
         setRecipes(res.data); // make sure this matches your backend response shape
       } catch (error) {
         console.error(
@@ -37,9 +34,7 @@ const Search = () => {
   useEffect(() => {
     const fetchRecipes = async () => {
       try {
-        const res = await axios.get(
-          `http://localhost:3000/filterRecipe/${sortOption}`
-        );
+        const res = await axios.get(`${API_URL}/filterRecipe/${sortOption}`);
         setRecipes(res.data);
       } catch (err) {
         console.error("Failed to fetch recipes:", err.response?.data || err);
@@ -81,7 +76,9 @@ const Search = () => {
                   value={sortOption}
                   onChange={(e) => handleSortChange(e.target.value)}
                 >
-                  <option defaultValue value="latest">Sort by: Latest</option>
+                  <option defaultValue value="latest">
+                    Sort by: Latest
+                  </option>
                   <option value="topRated">Sort by: Top Rated</option>
                 </select>
               </div>

@@ -39,7 +39,7 @@ const Profile = () => {
 
   const [coverImage, setCoverImage] = useState(null);
   const [profilePic, setProfilePic] = useState(null);
-
+ const API_URL = "http://localhost:3000";
   // Image Upload Handler
   const handleImageUpload = async (e, type = "profile") => {
     const file = e.target.files[0];
@@ -72,7 +72,7 @@ const Profile = () => {
 
         try {
           await axios.post(
-            "http://localhost:3000/profile/updateProfile",
+            `${API_URL}/profile/updateProfile`,
             formData,
             {
               withCredentials: true,
@@ -122,7 +122,7 @@ const Profile = () => {
         // email: email,
       };
 
-      await axios.post("http://localhost:3000/profile/updateName", payload, {
+      await axios.post(`${API_URL}/profile/updateName`, payload, {
         withCredentials: true,
       });
 
@@ -143,7 +143,7 @@ const Profile = () => {
         email: email,
       };
 
-      await axios.post("http://localhost:3000/profile/updateEmail", payload, {
+      await axios.post(`${API_URL}/profile/updateEmail`, payload, {
         withCredentials: true,
       });
 
@@ -156,7 +156,7 @@ const Profile = () => {
   // show dynamic data of logged in user
   useEffect(() => {
     axios
-      .get("http://localhost:3000/profile/users", {
+      .get(`${API_URL}/profile/users`, {
         withCredentials: true,
       })
       .then((res) => {
@@ -173,12 +173,12 @@ const Profile = () => {
     const fetchRecipes = async () => {
       try {
         const res = await axios.get(
-          "http://localhost:3000/profile/profilerecipes",
+          `${API_URL}/profile/profilerecipes`,
           {
             withCredentials: true,
           }
         );
-        setShowRecipe(res.data); // ✅ Now it's the actual data
+        setShowRecipe(res.data); //  Now it's the actual data
       } catch (error) {
         console.log("Your recipes not found", error);
       }

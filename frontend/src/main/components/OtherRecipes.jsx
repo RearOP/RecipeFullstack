@@ -5,16 +5,13 @@ import axios from "axios";
 
 const OtherRecipes = () => {
   const [otherRecipes, setotherRecipes] = useState([]);
-
+  const API_URL = "http://localhost:3000";
   useEffect(() => {
     const fetchRecipe = async () => {
       try {
-        const res = await axios.get(
-          `http://localhost:3000/recipe/showrecipesDetailpage`,
-          {
-            withCredentials: true,
-          }
-        );
+        const res = await axios.get(`${API_URL}/recipe/showrecipesDetailpage`, {
+          withCredentials: true,
+        });
         setotherRecipes(res.data);
         // console.log(res.data);
       } catch (err) {
@@ -62,7 +59,9 @@ const OtherRecipes = () => {
                       {recipe.totalRatings ? recipe.totalRatings : 0})
                     </span>
                   </div>
-                  <span className="text-gray-400">by {recipe.createdBy?.fullname || "Unknown"}</span>
+                  <span className="text-gray-400">
+                    by {recipe.createdBy?.fullname || "Unknown"}
+                  </span>
                 </div>
               </div>
             </motion.a>
