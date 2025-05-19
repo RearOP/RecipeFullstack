@@ -19,7 +19,7 @@ const Search = () => {
         const res = await axios.get(`${API_URL}/recipe/showrecipes`, {
           withCredentials: true,
         });
-        setRecipes(res.data); // make sure this matches your backend response shape
+        setRecipes(res.data);
       } catch (error) {
         console.error(
           "Failed to fetch recipes:",
