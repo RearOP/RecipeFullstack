@@ -1,3 +1,48 @@
+/**
+ * RecipeDetails Component
+ * 
+ * A comprehensive recipe details page component that displays recipe information, allows user interactions
+ * like rating, commenting, saving recipes and managing comments/replies.
+ * 
+ * @component
+ * @example
+ * return (
+ *   <RecipeDetails />
+ * )
+ * 
+ * @state {number} rating - Current user's rating for the recipe
+ * @state {Object} result - Recipe details object containing all recipe information
+ * @state {Array} showcomments - Array of comments for the recipe
+ * @state {Array} savedRecipesList - List of recipes saved by current user
+ * @state {number|null} replyingTo - Index of comment being replied to
+ * @state {string} replyText - Text content for replies
+ * @state {string|null} CommentEditId - ID of comment being edited
+ * @state {string|null} editingReplyId - ID of reply being edited 
+ * @state {string} commentText - Text content for main comments
+ * @state {boolean|Object} IsLoggedIn - User login status and user data
+ * @state {Object} expandedComments - Tracks which comment threads are expanded
+ * @state {number} currentPage - Current page number for paginated comments
+ * 
+ * @hooks
+ * - Uses useParams() to get recipe ID from URL
+ * - Uses multiple useEffect() for data fetching and state management
+ * 
+ * @features
+ * - Recipe details display with image, title, timing, servings
+ * - Star rating system
+ * - Save/unsave recipe functionality
+ * - Comment system with replies
+ * - Comment editing and deletion
+ * - Pagination for comments
+ * - Responsive design
+ * 
+ * @requires react
+ * @requires react-router
+ * @requires axios
+ * @requires framer-motion
+ * @requires react-icons
+ * @requires react-star-ratings
+ */
 import { React, useEffect, useState } from "react";
 import Footer from "./components/Footer";
 import Header from "./components/Header";

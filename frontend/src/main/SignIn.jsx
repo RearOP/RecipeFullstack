@@ -1,3 +1,26 @@
+/**
+ * SignIn component for user authentication
+ * @component
+ * @description Provides a sign-in form with email/password authentication and social login options.
+ * Also includes a side panel with sign-up CTA for desktop view and mobile-optimized layout.
+ * 
+ * @example
+ * return (
+ *   <SignIn />
+ * )
+ * 
+ * @returns {JSX.Element} A responsive sign-in page with form and decorative elements
+ * 
+ * @property {Function} handleLogin - Async function that handles user login
+ * @property {object} LoginSchema - Yup validation schema for the login form
+ * 
+ * @requires react
+ * @requires formik
+ * @requires yup
+ * @requires axios
+ * @requires react-router
+ * @requires react-icons/fa
+ */
 import React from "react";
 import { FaFacebookF, FaGooglePlusG, FaLinkedinIn } from "react-icons/fa";
 import SigninImage from "../assets/img/signin.jpg";

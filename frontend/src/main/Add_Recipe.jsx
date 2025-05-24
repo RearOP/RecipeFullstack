@@ -1,3 +1,31 @@
+
+/**
+ * A form component for adding new recipes with multi-step validation.
+ * 
+ * @component
+ * @description Provides a multi-step form interface for users to create new recipes.
+ * The form is divided into four steps:
+ * 1. Title & Description
+ * 2. Ingredients
+ * 3. Steps
+ * 4. Extras (image, category, time, servings)
+ * 
+ * Each step has its own validation schema using Yup, and the form data is submitted
+ * to the server using axios with multipart/form-data format.
+ * 
+ * @requires react
+ * @requires formik
+ * @requires yup
+ * @requires axios
+ * @requires react-router
+ * 
+ * @example
+ * return (
+ *   <Add_Recipe />
+ * )
+ * 
+ * @returns {JSX.Element} A multi-step form component for recipe creation
+ */
 import React, { useEffect, useState } from "react";
 import Footer from "./components/Footer";
 import Header from "./components/Header";
@@ -453,7 +481,6 @@ const Add_Recipe = () => {
 
 export default Add_Recipe;
 
-// Tailwind helper
 const inputClass =
   "w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm text-sm focus:outline-none focus:ring-2 focus:ring-red-400";
 

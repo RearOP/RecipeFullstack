@@ -1,3 +1,23 @@
+/**
+ * @component Index
+ * @description Main component that displays the recipe website's homepage including header, hero section,
+ * recipe filtering, categories, videos, newsletter subscription, and footer.
+ * 
+ * @state {Array} recipes - Stores all recipes fetched from the API
+ * @state {string} search - Stores the current search query
+ * @state {string} selectedCategory - Stores the currently selected category filter
+ * @state {string} sortOption - Stores the current sort option ('latest' or 'topRated')
+ * 
+ * @constant {string} API_URL - Base URL for API endpoints
+ * 
+ * @function handleSortChange - Updates the sort option state
+ * @param {string} option - The sorting option to apply
+ * 
+ * @function filteredRecipes - Filters recipes based on search query and selected category
+ * @returns {Array} - Filtered array of recipes
+ * 
+ * @returns {JSX.Element} Renders the complete homepage with all components and functionality
+ */
 import React, { useEffect, useState } from "react";
 import Header from "./components/Header";
 import Hero from "./components/Hero";

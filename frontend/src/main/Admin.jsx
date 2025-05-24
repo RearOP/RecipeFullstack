@@ -1,3 +1,24 @@
+/**
+ * Admin component for managing categories in the recipe application
+ * @component
+ * @description Provides a form interface for creating new categories with subcategories
+ * 
+ * @example
+ * return (
+ *   <Admin />
+ * )
+ * 
+ * @returns {JSX.Element} A form page with fields for category name, slug and dynamic subcategory inputs
+ * 
+ * @formSchema CategorySchema
+ * - name (string): Category name, minimum 3 characters, required
+ * - slug (string): URL-friendly version of category name
+ * - subcategories (array): List of subcategory objects with name property
+ * 
+ * @apiEndpoint POST /category/create
+ * - Sends category data to server with credentials
+ * - Redirects to homepage on successful creation
+ */
 import React, { useState } from "react";
 import Header from "./components/Header";
 import Footer from "./components/Footer";

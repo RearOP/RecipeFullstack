@@ -1,3 +1,24 @@
+/**
+ * Search component that displays and filters recipes
+ * @component
+ * @description A component that fetches recipes from an API, allows searching through them,
+ * and provides sorting functionality. It includes a search input and a sorting dropdown.
+ * 
+ * @state {Array} recipes - Stores all fetched recipes
+ * @state {string} search - Stores the current search query
+ * @state {string} sortOption - Stores the current sorting option ('latest' or 'topRated')
+ * 
+ * @function handleSortChange - Updates the sorting option state
+ * @function filteredRecipes - Filters recipes based on search query matching title, creator name, category, or subcategory
+ * 
+ * @returns {JSX.Element} A page with search functionality, recipe cards, header and footer
+ * 
+ * @requires React
+ * @requires axios
+ * @requires ./components/Recipe
+ * @requires ./components/Footer
+ * @requires ./components/Header
+ */
 import React, { useEffect, useState } from "react";
 import Recipecard from "./components/Recipe";
 import Footer from "./components/Footer";

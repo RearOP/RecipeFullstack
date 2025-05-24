@@ -1,3 +1,28 @@
+/**
+ * Profile component for user dashboard
+ * @component
+ * 
+ * @animation containerVariants - Controls staggered animation of child elements
+ * @animation cardVariants - Controls individual card animations
+ * 
+ * @state {string} activeTab - Currently selected recipe category tab
+ * @state {Object} user - Logged in user data
+ * @state {Array} showRecipe - User's recipes to display
+ * @state {string} name - Editable user name
+ * @state {boolean} showName - Controls name edit mode
+ * @state {string} nameError - Validation error for name field
+ * @state {string} email - Editable user email
+ * @state {boolean} showEmail - Controls email edit mode
+ * @state {string} emailError - Validation error for email field
+ * @state {string} coverImage - Cover image preview URL
+ * @state {string} profilePic - Profile image preview URL
+ * 
+ * @function handleImageUpload - Handles profile and cover image uploads
+ * @function handleNameSubmit - Processes name update submission
+ * @function handleEmailSubmit - Processes email update submission
+ * 
+ * @returns {JSX.Element} Profile page with user info, image upload capabilities and recipe grid
+ */
 import React, { useState, useEffect } from "react";
 import Footer from "./components/Footer";
 import Header from "./components/Header";

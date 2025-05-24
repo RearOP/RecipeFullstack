@@ -1,3 +1,23 @@
+/**
+ * Recipe component that displays a grid of recipe cards with pagination
+ * 
+ * @component
+ * @param {Object} props
+ * @param {Array} props.recipes - Array of recipe objects containing recipe information
+ * @param {string} props.recipes[].title - Title of the recipe
+ * @param {string} props.recipes[].imageUrl - URL of the recipe image
+ * @param {string} props.recipes[]._id - Unique identifier of the recipe
+ * @param {string} props.recipes[].createdAt - Creation date and time of the recipe
+ * @param {number} props.recipes[].averageRating - Average rating of the recipe
+ * @param {number} props.recipes[].totalRatings - Total number of ratings for the recipe
+ * @param {Object} props.recipes[].createdBy - Creator information
+ * @param {string} props.recipes[].createdBy.fullname - Full name of recipe creator
+ * 
+ * @returns {JSX.Element} Grid of recipe cards with pagination controls
+ * 
+ * @example
+ * <Recipe recipes={recipesArray} />
+ */
 import { React, useState } from "react";
 import { FaStar } from "react-icons/fa";
 

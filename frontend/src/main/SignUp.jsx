@@ -1,3 +1,26 @@
+
+/**
+ * @component SignUp
+ * @description A sign-up component that provides user registration functionality with form validation and social media login options.
+ * The component includes a form for email registration and social media buttons for alternative sign-up methods.
+ * 
+ * @uses {React} React - Core React library
+ * @uses {Formik} Formik - Form handling and validation
+ * @uses {Yup} Yup - Schema validation
+ * @uses {axios} axios - HTTP client for API requests
+ * @uses {react-router} useNavigate - Navigation hook
+ * 
+ * @constant {Object} SignUpSchema - Yup validation schema for the sign-up form
+ * @constant {string} API_URL - Backend API endpoint
+ * 
+ * @function handleSubmit
+ * @param {Object} values - Form values containing user registration data
+ * @param {string} values.fullname - User's full name (minimum 3 characters)
+ * @param {string} values.email - User's email address
+ * @param {string} values.password - User's password (minimum 8 characters)
+ * 
+ * @returns {JSX.Element} A responsive sign-up page with form validation and social media integration
+ */
 import { React, useState } from "react";
 import { FaFacebookF, FaGooglePlusG, FaLinkedinIn } from "react-icons/fa";
 import SignupImage from "../assets/img/signup.jpg";
