@@ -14,17 +14,19 @@ module.exports = async (req, res, next) => {
     const decoded = jwt.verify(token, process.env.JWT_KEY);
     // console.log("Decoded JWT:", decoded); // <--- add this
 
-    const user = await userModel.findOne({ email: decoded.email }).select("-password");
+    const user = await userModel
+      .findOne({ email: decoded.email })
+      .select("-password");
     if (!user) {
-      console.log("User not found from decoded email:", decoded.email);
+      // console.log("User not found from decoded email:", decoded.email);
       res.clearCookie("token");
       return res.status(401).json({ message: "Unauthorized" });
-    }    
+    }
 
     req.user = user;
     next();
   } catch (error) {
-    console.error("JWT Error:", error.message);
+    // console.error("JWT Error:", error.message);
     res.clearCookie("token");
     return res.status(401).json({ message: "Unauthorized" });
   }
