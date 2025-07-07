@@ -38,7 +38,7 @@ const Header = () => {
       });
       // console.log("Logout response:", res.status, res.data);
       if (res.status === 200) {
-        navigate("/");
+        window.location.href="/";
       }
     } catch (error) {
       console.error("Logout failed", error.response?.data || error.message);

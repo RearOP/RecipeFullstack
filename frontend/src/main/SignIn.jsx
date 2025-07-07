@@ -3,17 +3,17 @@
  * @component
  * @description Provides a sign-in form with email/password authentication and social login options.
  * Also includes a side panel with sign-up CTA for desktop view and mobile-optimized layout.
- * 
+ *
  * @example
  * return (
  *   <SignIn />
  * )
- * 
+ *
  * @returns {JSX.Element} A responsive sign-in page with form and decorative elements
- * 
+ *
  * @property {Function} handleLogin - Async function that handles user login
  * @property {object} LoginSchema - Yup validation schema for the login form
- * 
+ *
  * @requires react
  * @requires formik
  * @requires yup
@@ -28,7 +28,7 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import axios from "axios";
 import { useNavigate } from "react-router";
-
+import { GoogleLogin } from "@react-oauth/google";
 const LoginSchema = Yup.object().shape({
   email: Yup.string()
     .email("Invalid email address")
@@ -40,7 +40,7 @@ const LoginSchema = Yup.object().shape({
 
 const SignIn = () => {
   let navigate = useNavigate();
-   const API_URL = "http://localhost:3000";
+  const API_URL = "http://localhost:3000";
   async function handleLogin(values) {
     try {
       const res = await axios.post(`${API_URL}/auth/login`, values, {
@@ -58,6 +58,23 @@ const SignIn = () => {
       console.error(error.response?.data?.message || "Login failed");
     }
   }
+
+  const handleGoogle = async ({ credential }) => {
+    try {
+      // send the ID-token to backend
+      const { data } = await axios.post(
+        `${API_URL}/auth/google/token`,
+        { id_token: credential },
+        { withCredentials: true }      // ↞ so cookie comes back
+      );
+
+      // console.log(data.message);    // «Google auth OK»
+      // navigate inside SPA, e.g.:
+      navigate("/");
+    } catch (err) {
+      console.error("Google login failed", err.response?.data || err);
+    }
+  };
 
   return (
     <>
@@ -82,15 +99,26 @@ const SignIn = () => {
 
             {/* Social Icons */}
             <div className="flex justify-center space-x-6 mb-6">
-              <button className="w-12 h-12 flex items-center justify-center border-2 rounded-full text-[#3b5998] hover:bg-[#3b5998] hover:text-white transition-all duration-300">
+              {/* <button className="w-12 h-12 flex items-center justify-center border-2 rounded-full text-[#3b5998] hover:bg-[#3b5998] hover:text-white transition-all duration-300">
                 <FaFacebookF size={20} />
-              </button>
-              <button className="w-12 h-12 flex items-center justify-center border-2 rounded-full text-[#dd4b39] hover:bg-[#dd4b39] hover:text-white transition-all duration-300">
-                <FaGooglePlusG size={24} />
-              </button>
-              <button className="w-12 h-12 flex items-center justify-center border-2 rounded-full text-[#0077b5] hover:bg-[#0077b5] hover:text-white transition-all duration-300">
+              </button> */}
+              {/* <button className="w-12 h-12 flex items-center justify-center border-2 rounded-full text-[#dd4b39] hover:bg-[#dd4b39] hover:text-white transition-all duration-300"> */}
+              {/* <FaGooglePlusG
+                  onSuccess={() => {
+                    window.location.href = "http://localhost:3000/auth/google";
+                  }}
+                  onError={() => console.log("Login Failed")}
+                  useOneTap
+                  size={24}
+                /> */}
+              <GoogleLogin
+                onSuccess={handleGoogle}
+                onError={() => console.log("Login Failed")}
+              />
+              {/* </button> */}
+              {/* <button className="w-12 h-12 flex items-center justify-center border-2 rounded-full text-[#0077b5] hover:bg-[#0077b5] hover:text-white transition-all duration-300">
                 <FaLinkedinIn size={20} />
-              </button>
+              </button> */}
             </div>
 
             <p className="text-center text-gray-500 mb-8">

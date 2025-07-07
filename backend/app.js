@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const app = express();
 const cors = require("cors");
@@ -13,7 +14,10 @@ const expressSession = require("express-session");
 const cookieParser = require("cookie-parser");
 const verifyToken = require("./middlewares/verifytoken");
 const MongoStore = require("connect-mongo");
+const passport = require("passport");
+require("./config/passport");
 
+app.use(passport.initialize());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -23,7 +27,6 @@ app.use(
     credentials: true, // allow cookies to be sent
   })
 );
-require("dotenv").config();
 app.use(
   expressSession({
     secret: process.env.EXPRESS_SESSION_SECRET,
@@ -41,12 +44,12 @@ app.use(
   })
 );
 app.use("/auth", userRouter);
-app.use("/profile", profileRouter );
-app.use("/recipe", recipeRouter );
-app.use("/category",categoryRouter );
-app.use("/comments",commentsRouter );
-app.use("/rating",ratingRouter );
-app.use("/filterRecipe",Recipefilter );
+app.use("/profile", profileRouter);
+app.use("/recipe", recipeRouter);
+app.use("/category", categoryRouter);
+app.use("/comments", commentsRouter);
+app.use("/rating", ratingRouter);
+app.use("/filterRecipe", Recipefilter);
 app.get("/check", verifyToken, (req, res) => {
   res.status(200).json({ loggedIn: true, user: req.user, role: req.user.role });
 });

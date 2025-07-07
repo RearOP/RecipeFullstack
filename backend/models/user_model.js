@@ -12,9 +12,11 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: true,
+    required: function () { return !this.googleId; },
+    elect: false, 
     minlength:8
   },
+  googleId: String,
   email: {
     type: String,
     required: true,
@@ -33,6 +35,6 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: 'https://bdu.ac.bd/uploads/topics/default.png'
   }
-});
+}, { timestamps: true });
 
 module.exports = mongoose.model('user', userSchema);

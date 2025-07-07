@@ -12,6 +12,7 @@ import Add_Recipe from "./main/Add_Recipe";
 import Preloader from "./main/components/Loader";
 import ProtectedRoute from "./main/components/ProtectedRoute";
 import Admin from "./main/Admin";
+import OAuthSuccess from "./main/OAuthSuccess";
 function App() {
   const [loading, setLoading] = useState(true);
 
@@ -37,6 +38,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <RecipeDetails />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/oauth-success"
+            element={
+              <ProtectedRoute>
+                <OAuthSuccess />
               </ProtectedRoute>
             }
           />

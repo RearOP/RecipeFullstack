@@ -1,24 +1,23 @@
-
 /**
  * @component SignUp
  * @description A sign-up component that provides user registration functionality with form validation and social media login options.
  * The component includes a form for email registration and social media buttons for alternative sign-up methods.
- * 
+ *
  * @uses {React} React - Core React library
  * @uses {Formik} Formik - Form handling and validation
  * @uses {Yup} Yup - Schema validation
  * @uses {axios} axios - HTTP client for API requests
  * @uses {react-router} useNavigate - Navigation hook
- * 
+ *
  * @constant {Object} SignUpSchema - Yup validation schema for the sign-up form
  * @constant {string} API_URL - Backend API endpoint
- * 
+ *
  * @function handleSubmit
  * @param {Object} values - Form values containing user registration data
  * @param {string} values.fullname - User's full name (minimum 3 characters)
  * @param {string} values.email - User's email address
  * @param {string} values.password - User's password (minimum 8 characters)
- * 
+ *
  * @returns {JSX.Element} A responsive sign-up page with form validation and social media integration
  */
 import { React, useState } from "react";
@@ -28,6 +27,7 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { useNavigate } from "react-router";
 import axios from "axios";
+import { GoogleLogin } from "@react-oauth/google";
 
 const SignUpSchema = Yup.object().shape({
   fullname: Yup.string()
@@ -57,6 +57,23 @@ const SignUp = () => {
     }
   }
 
+  const handleGoogle = async ({ credential }) => {
+    try {
+      // send the ID-token to backend
+      const { data } = await axios.post(
+        `${API_URL}/auth/google/token`,
+        { id_token: credential },
+        { withCredentials: true }      // ↞ so cookie comes back
+      );
+
+      // console.log(data.message);       // «Google auth OK»
+      // navigate inside SPA, e.g.:
+      navigate("/");
+    } catch (err) {
+      console.error("Google login failed", err.response?.data || err);
+    }
+  };
+
   return (
     <>
       <div className="min-h-screen font-[Montserrat] flex items-center justify-center p-4">
@@ -80,15 +97,27 @@ const SignUp = () => {
 
             {/* Social Icons */}
             <div className="flex justify-center space-x-6 mb-6">
-              <button className="w-12 h-12 flex items-center justify-center border-2 rounded-full text-[#3b5998] hover:bg-[#3b5998] hover:text-white transition-all duration-300">
+              {/* <button className="w-12 h-12 flex items-center justify-center border-2 rounded-full text-[#3b5998] hover:bg-[#3b5998] hover:text-white transition-all duration-300">
                 <FaFacebookF size={20} />
-              </button>
-              <button className="w-12 h-12 flex items-center justify-center border-2 rounded-full text-[#dd4b39] hover:bg-[#dd4b39] hover:text-white transition-all duration-300">
-                <FaGooglePlusG size={24} />
-              </button>
-              <button className="w-12 h-12 flex items-center justify-center border-2 rounded-full text-[#0077b5] hover:bg-[#0077b5] hover:text-white transition-all duration-300">
+              </button> */}
+              {/* <button className="w-12 h-12 flex items-center justify-center border-2 rounded-full text-[#dd4b39] hover:bg-[#dd4b39] hover:text-white transition-all duration-300"> */}
+              {/* <FaGooglePlusG
+                  onSuccess={() => {
+                    window.location.href = "http://localhost:3000/auth/google";
+                  }}
+                  onError={() => console.log("Signup Failed")}
+                  useOneTap
+                  size={24}
+                /> */}
+              <GoogleLogin
+                onSuccess={handleGoogle}
+                onError={() => console.log("Sign Failed")}
+                useOneTap
+              />
+              {/* </button> */}
+              {/* <button className="w-12 h-12 flex items-center justify-center border-2 rounded-full text-[#0077b5] hover:bg-[#0077b5] hover:text-white transition-all duration-300">
                 <FaLinkedinIn size={20} />
-              </button>
+              </button> */}
             </div>
 
             <p className="text-center text-gray-500 mb-8">

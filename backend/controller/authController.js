@@ -1,6 +1,7 @@
 const userModel = require("../models/user_model");
 const bcrypt = require("bcrypt");
 const { generateToken } = require("../utils/generatetoken");
+const passport = require("passport");
 
 module.exports.registeruser = async (req, res) => {
   try {
@@ -64,14 +65,38 @@ module.exports.loginUser = async (req, res) => {
   });
 };
 
+// google authentication
+exports.googleAuth = passport.authenticate("google", {
+  scope: ["profile", "email"],
+});
+
+// Step 2: Google callback
+exports.googleCallback = (req, res, next) => {
+  passport.authenticate(
+    "google",
+    { session: false },
+    (err, user, info) => {
+      // console.log("-- GOOGLE CALLBACK --");
+      // console.log("err :", err);
+      // console.log("user:", user);
+      // console.log("info:", info);   // Google may put the reason here
+
+      if (err)   return next(err);
+      if (!user) return res.status(401).json({ message: "Google auth failed", info });
+
+      const token = generateToken(user);
+      res.cookie("token", token, { httpOnly: true, sameSite: "lax", secure: false });
+      return res.json({ message: "Google auth OK", token });
+    }
+  )(req, res, next);                  // <-- invoke the inner function
+};
 
 module.exports.logout = async (req, res) => {
   // console.log("Logout hit");
   res.clearCookie("token", {
     httpOnly: true,
     sameSite: "Lax", // or "Strict" if that's what you used before
-    secure: false,   // IMPORTANT: false if running on HTTP (localhost)
+    secure: false, // IMPORTANT: false if running on HTTP (localhost)
   });
   res.status(200).json({ message: "Logged out successfully" });
 };
-

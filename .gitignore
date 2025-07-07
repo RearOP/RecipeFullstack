@@ -2,3 +2,5 @@ backend/node_modules
 backend/.env
 frontend/node_modules/
 frontend/public/video/
+client_secret_532030407776-6qbmsom92b4ck9pt9gn7fqgp05n6uhgg.apps.googleusercontent.com.json
+google client credentials.txt
