@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { FiMenu, FiX } from "react-icons/fi";
 import { IoPersonOutline } from "react-icons/io5";
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 import axios from "axios";
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -49,40 +49,40 @@ const Header = () => {
     <header className="py-4 px-4 md:px-8 top-0 z-50 relative">
       <div className="flex items-center justify-between max-w-7xl mx-auto">
         {/* Logo */}
-        <a
-          href="/"
+        <Link
+          to="/"
           className="text-[24px] font-bold font-[Leckerli_One] text-red-700"
         >
           Kocina
-        </a>
+        </Link>
 
         {/* Desktop Nav */}
         <nav className="hidden md:flex gap-10 font-[Montserrat] text-sm font-semibold text-[#4a4a4a]">
-          <a
-            href="/"
+          <Link
+            to="/"
             className="hover:text-red-700 transition duration-300 ease-in"
           >
             Home
-          </a>
-          <a
-            href="/search"
+          </Link>
+          <Link
+            to="/search"
             className="hover:text-red-700 transition duration-300 ease-in"
           >
             Search
-          </a>
-          <a
-            href="/contact"
+          </Link>
+          <Link
+            to="/contact"
             className="hover:text-red-700 transition duration-300 ease-in"
           >
             Contact
-          </a>
+          </Link>
           {Admin && (
-            <a
-              href="/admin"
+            <Link
+              to="/admin"
               className="hover:text-red-700 transition duration-300 ease-in"
             >
               Admin
-            </a>
+            </Link>
           )}
         </nav>
 
@@ -91,18 +91,18 @@ const Header = () => {
         <div className="hidden md:flex items-center gap-6 font-[Montserrat] font-bold text-sm">
           {!IsLoggedIn ? (
             <>
-              <a
-                href="/signin"
+              <Link
+                to="/signin"
                 className="text-[#4a4a4a] hover:text-red-700 transition duration-300 ease-in"
               >
                 Sign In
-              </a>
-              <a
-                href="/signup"
+              </Link>
+              <Link
+                to="/signup"
                 className="bg-red-600 hover:bg-red-700 text-white font-semibold px-5 py-2 rounded-full transition duration-300 ease-in"
               >
                 Sign Up
-              </a>
+              </Link>
             </>
           ) : (
             <div className="relative hidden md:block">
@@ -114,18 +114,18 @@ const Header = () => {
               </button>
               {isProfileOpen && (
                 <div className="absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-2">
-                  <a
-                    href="/profile"
+                  <Link
+                    to="/profile"
                     className="block px-4 py-2 text-sm hover:bg-gray-100"
                   >
                     Profile
-                  </a>
-                  <a
-                    href="/addrecipe"
+                  </Link>
+                  <Link
+                    to="/addrecipe"
                     className="block px-4 py-2 text-sm hover:bg-gray-100"
                   >
                     Add Recipe
-                  </a>
+                  </Link>
                   <button
                     onClick={handleLogout}
                     className="block px-4 py-2 text-sm hover:text-red-700 transition duration-300"
@@ -150,52 +150,52 @@ const Header = () => {
         <div className="md:hidden fixed top-[72px] left-0 w-full h-screen bg-white shadow-lg z-50">
           <div className="px-6 py-4">
             <nav className="flex flex-col text-center gap-4 font-[Montserrat] text-sm font-semibold text-[#4a4a4a]">
-              <a
-                href="/"
+              <Link
+                to="/"
                 className="hover:text-red-700 transition duration-300 ease-in"
               >
                 Home
-              </a>
-              <a
-                href="/about"
+              </Link>
+              <Link
+                to="/about"
                 className="hover:text-red-700 transition duration-300 ease-in"
               >
                 Recipe
-              </a>
-              <a
-                href="/search"
+              </Link>
+              <Link
+                to="/search"
                 className="hover:text-red-700 transition duration-300 ease-in"
               >
                 Search
-              </a>
-              <a
-                href="/contact"
+              </Link>
+              <Link
+                to="/contact"
                 className="hover:text-red-700 transition duration-300 ease-in"
               >
                 Contact
-              </a>
+              </Link>
               {Admin && (
-                <a
-                  href="/admin"
+                <Link
+                  to="/admin"
                   className="hover:text-red-700 transition duration-300 ease-in"
                 >
                   Admin
-                </a>
+                </Link>
               )}
               {IsLoggedIn && (
                 <div className="border-t border-gray-200 pt-4">
-                  <a
-                    href="/profile"
+                  <Link
+                    to="/profile"
                     className="block py-2 hover:text-red-700 transition duration-300 ease-in"
                   >
                     Profile
-                  </a>
-                  <a
-                    href="/addrecipe"
+                  </Link>
+                  <Link
+                    to="/addrecipe"
                     className="block py-2 hover:text-red-700 transition duration-300 ease-in"
                   >
                     Add Recipe
-                  </a>
+                  </Link>
                   <button
                     onClick={handleLogout}
                     className="block py-2 hover:text-red-700 transition duration-300 ease-in"
@@ -207,18 +207,18 @@ const Header = () => {
             </nav>
             {!isLoggedIn && (
               <div className="mt-4 flex flex-col text-center gap-2 font-[Montserrat] font-bold text-sm">
-                <a
-                  href="/signin"
+                <Link
+                  to="/signin"
                   className="text-[#4a4a4a] hover:text-red-700 transition duration-300 ease-in"
                 >
                   Sign In
-                </a>
-                <a
-                  href="/signup"
+                </Link>
+                <Link
+                  to="/signup"
                   className="bg-red-600 hover:bg-red-700 text-white font-semibold px-3 py-2 rounded-full text-center transition duration-300 ease-in"
                 >
                   Sign Up
-                </a>
+                </Link>
               </div>
             )}
           </div>

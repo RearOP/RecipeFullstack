@@ -1,6 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { FaStar } from "react-icons/fa";
+import { Link } from "react-router";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -34,7 +35,7 @@ const ProfileRecipeCard = ({ showRecipes }) => {
               variants={cardVariants}
               whileHover={{ scale: 1.02 }}
             >
-              <a href={`/recipeDetails/${recipe._id}`}>
+              <Link to={`/recipeDetails/${recipe._id}`}>
                 <img
                   src={recipe.imageUrl}
                   alt={recipe.title || "Recipe"}
@@ -55,7 +56,7 @@ const ProfileRecipeCard = ({ showRecipes }) => {
                     </span>
                   </div>
                 </div>
-              </a>
+              </Link>
             </motion.div>
           ))
         ) : (

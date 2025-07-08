@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import MainImg from "../../assets/img/header.jpg";
 import { GoArrowRight } from "react-icons/go";
 import axios from "axios";
+import { Link } from "react-router";
 
 const Hero = () => {
   const [IsLoggedIn, setIsLoggedIn] = useState(false);
@@ -38,25 +39,25 @@ const Hero = () => {
               infomediaries negotiate sustainable strategic theme areas
             </p>
             {!IsLoggedIn ? (
-              <a
-                href="/signup"
+              <Link
+                to="/signup"
                 className="inline-flex items-center gap-2 mt-6 group text-[16px] font-medium text-white"
               >
                 <span className="relative after:absolute after:bg-white after:h-[2px] after:w-full after:left-0 after:bottom-0 after:origin-left after:scale-x-0 after:transition-transform after:duration-800 group-hover:after:scale-x-100">
                   Sign up today
                 </span>
                 <GoArrowRight />
-              </a>
+              </Link>
             ) : (
-              <a
-                href="/profile"
+              <Link
+                to="/profile"
                 className="inline-flex items-center gap-2 mt-6 group text-[16px] font-medium text-white"
               >
                 <span className="relative after:absolute after:bg-white after:h-[2px] after:w-full after:left-0 after:bottom-0 after:origin-left after:scale-x-0 after:transition-transform after:duration-800 group-hover:after:scale-x-100">
                   View Profile
                 </span>
                 <GoArrowRight />
-              </a>
+              </Link>
             )}
           </div>
         </div>

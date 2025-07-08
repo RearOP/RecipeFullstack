@@ -82,12 +82,12 @@ const SignUp = () => {
           <div className="p-6 sm:p-8 lg:p-12">
             {/* Logo */}
             <div className="text-center mb-6">
-              <a
-                href="/"
+              <Link
+                to="/"
                 className="text-3xl sm:text-4xl text-red-700 font-[Leckerli_One] block hover:text-red-800 transition-colors"
               >
                 Kocina
-              </a>
+              </Link>
             </div>
 
             {/* Heading */}
@@ -199,12 +199,12 @@ const SignUp = () => {
               <p className="text-lg mb-8 opacity-90">
                 Enter your personal details and join the cooking community
               </p>
-              <a
-                href="/signin"
+              <Link
+                to="/signin"
                 className="bg-transparent border-2 border-white text-white py-3 px-8 rounded-full font-semibold hover:bg-white hover:text-red-700 transform hover:scale-[1.02] transition-all duration-300"
               >
                 Sign In
-              </a>
+              </Link>
             </div>
             {/* Background Image with Overlay */}
             <div className="absolute inset-0  z-0">

@@ -20,6 +20,7 @@
  */
 import { React, useState } from "react";
 import { FaStar } from "react-icons/fa";
+import { Link } from "react-router";
 
 const Recipe = ({ recipes }) => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -56,8 +57,8 @@ const Recipe = ({ recipes }) => {
             const hasRecipes = recipe.title && recipe.title.length > 0;
 
             return (
-              <a
-                href={`/recipeDetails/${recipe._id}`}
+              <Link
+                to={`/recipeDetails/${recipe._id}`}
                 key={index}
                 className="card rounded-2xl p-4 transition-transform hover:-translate-y-1 hover:shadow-lg duration-300"
               >
@@ -93,7 +94,7 @@ const Recipe = ({ recipes }) => {
                     </span>
                   </div>
                 </div>
-              </a>
+              </Link>
             );
           })}
         </>

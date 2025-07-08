@@ -27,7 +27,7 @@ import SigninImage from "../assets/img/signin.jpg";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import axios from "axios";
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { GoogleLogin } from "@react-oauth/google";
 const LoginSchema = Yup.object().shape({
   email: Yup.string()
@@ -84,12 +84,12 @@ const SignIn = () => {
           <div className="p-6 sm:p-8 lg:p-12">
             {/* Logo */}
             <div className="text-center mb-6">
-              <a
-                href="/"
+              <Link
+                to="/"
                 className="text-3xl sm:text-4xl text-red-700 font-[Leckerli_One] block hover:text-red-800 transition-colors"
               >
                 Kocina
-              </a>
+              </Link>
             </div>
 
             {/* Heading */}
@@ -102,20 +102,11 @@ const SignIn = () => {
               {/* <button className="w-12 h-12 flex items-center justify-center border-2 rounded-full text-[#3b5998] hover:bg-[#3b5998] hover:text-white transition-all duration-300">
                 <FaFacebookF size={20} />
               </button> */}
-              {/* <button className="w-12 h-12 flex items-center justify-center border-2 rounded-full text-[#dd4b39] hover:bg-[#dd4b39] hover:text-white transition-all duration-300"> */}
-              {/* <FaGooglePlusG
-                  onSuccess={() => {
-                    window.location.href = "http://localhost:3000/auth/google";
-                  }}
-                  onError={() => console.log("Login Failed")}
-                  useOneTap
-                  size={24}
-                /> */}
-              <GoogleLogin
+              
+              <GoogleLogin 
                 onSuccess={handleGoogle}
                 onError={() => console.log("Login Failed")}
               />
-              {/* </button> */}
               {/* <button className="w-12 h-12 flex items-center justify-center border-2 rounded-full text-[#0077b5] hover:bg-[#0077b5] hover:text-white transition-all duration-300">
                 <FaLinkedinIn size={20} />
               </button> */}
@@ -168,14 +159,14 @@ const SignIn = () => {
                     />
                   </div>
 
-                  <div className="text-right">
-                    <a
+                  {/* <div className="text-right">
+                    <Link
                       href="#"
                       className="text-sm text-gray-600 hover:text-red-700 hover:underline transition-colors"
                     >
                       Forgot your password?
                     </a>
-                  </div>
+                  </div> */}
 
                   <button
                     type="submit"
@@ -195,12 +186,12 @@ const SignIn = () => {
               <p className="text-lg mb-8 opacity-90">
                 Enter your personal details and join the cooking community
               </p>
-              <a
-                href="/signup"
+              <Link
+                to="/signup"
                 className="bg-transparent border-2 border-white text-white py-3 px-8 rounded-full font-semibold hover:bg-white hover:text-red-700 transform hover:scale-[1.02] transition-all duration-300"
               >
                 Sign Up
-              </a>
+              </Link>
             </div>
             {/* Background Image with Overlay */}
             <div className="absolute inset-0 z-0">
